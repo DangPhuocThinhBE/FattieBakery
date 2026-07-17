@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, 'Giỏ Hàng - Fattie Bakery', ~{::extraStyles})}">
+<meta charset="UTF-8"/>
+<head>
+    <th:block th:fragment="extraStyles">
+        <style>
+            /* --- BẢNG MÀU ĐỒNG BỘ LOGO FATTIE BAKERY --- */
+            :root {
+                --logo-red: #8B3238;        /* Màu đỏ nâu từ logo */
+                --logo-red-dark: #6F282D;   /* Màu đỏ nâu đậm khi hover */
+                --bg-soft-cream: #FFFDF8;   /* Nền kem nhẹ ấm áp */
+                --text-main: #333333;
+                --text-muted: #666666;
+            }
+
+            body {
+                color: var(--text-main);
+            }
+
+            .cart-container {
+                background: var(--bg-soft-cream);
+                min-height: 80vh;
+                padding-top: 40px;
+            }
+
+            /* Chuyển style sang vuông vắn, thanh lịch hơn */
+            .card-cart {
+                border: 1px solid #EEEEEE;
+                border-radius: 0;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+                background: #fff;
+                overflow: hidden;
+            }
+
+            .cart-item {
+                transition: all 0.3s;
+                border-radius: 0;
+                margin-bottom: 0;
+                border-bottom: 1px solid #f5f5f5;
+            }
+            .cart-item:hover {
+                background: #FAF6F0; /* Màu nền khi hover nhẹ nhàng */
+            }
+
+            .cart-item-img {
+                width: 90px;
+                height: 90px;
+                object-fit: cover;
+                border-radius: 0;
+                border: 1px solid #EEEEEE;
+                background: #fff;
+            }
+
+            /* Thanh số lượng tinh tế hơn */
+            .qty-group {
+                background: #F5F5F5;
+                border-radius: 0;
+                padding: 4px;
+                display: inline-flex;
+                align-items: center;
+            }
+            .qty-btn {
+                width: 30px;
+                height: 30px;
+                border-radius: 0;
+                border: none;
+                background: #fff;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                transition: 0.2s;
+                cursor: pointer;
+            }
+            .qty-btn:hover {
+                background: var(--logo-red);
+                color: white;
+            }
+
+            .price-tag-cart {
+                color: var(--logo-red);
+                font-weight: 800;
+                font-size: 1.1rem;
+            }
+
+            /* Hộp nhập mã giảm giá */
+            .promo-box {
+                background: #FAF6F0;
+                border-radius: 0;
+                padding: 20px;
+                margin-bottom: 20px;
+                border: 1px dashed var(--logo-red);
+            }
+            .promo-box .btn-apply {
+                background-color: var(--logo-red) !important;
+                border: none;
+                color: white;
+                border-radius: 0;
+                font-weight: 600;
+            }
+            .promo-box .btn-apply:hover {
+                background-color: var(--logo-red-dark) !important;
+            }
+
+            /* Nút thanh toán vuông vắn sang trọng */
+            .btn-checkout-final {
+                background: var(--logo-red) !important;
+                border: none !important;
+                border-radius: 0 !important;
+                padding: 16px !important;
+                font-weight: 800 !important;
+                color: white !important;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                box-shadow: 0 4px 12px rgba(139, 50, 56, 0.15);
+                width: 100%;
+                transition: 0.3s;
+            }
+            .btn-checkout-final:hover {
+                background: var(--logo-red-dark) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(139, 50, 56, 0.25);
+            }
+
+            /* Custom màu checkbox đồng bộ */
+            .cart-checkbox {
+                border-radius: 0 !important;
+            }
+            .cart-checkbox:checked {
+                background-color: var(--logo-red) !important;
+                border-color: var(--logo-red) !important;
+            }
+
+            .fw-900 {
+                font-weight: 800;
+                color: var(--logo-red);
+                letter-spacing: 1px;
+            }
+
+            .btn-shop-now {
+                background-color: var(--logo-red) !important;
+                border: none;
+                border-radius: 0 !important;
+                padding: 12px 35px;
+                font-weight: 700;
+            }
+            .btn-shop-now:hover {
+                background-color: var(--logo-red-dark) !important;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+
+<section class="cart-container">
+    <div class="container">
+        <div class="d-flex align-items-center mb-4">
+            <h3 class="fw-900 mb-0">🛒 GIỎ HÀNG CỦA BẠN</h3>
+        </div>
+
+        <div th:if="${#lists.isEmpty(cartItems)}" class="card-cart py-5 text-center bg-white">
+            <div class="card-body">
+                <div style="font-size: 5rem;">🍰</div>
+                <h4 class="fw-700 mt-3 text-muted">Chưa có món bánh nào trong giỏ bạn ơi!</h4>
+                <a href="/shop" class="btn btn-primary btn-shop-now mt-3">Chọn Bánh Ngay</a>
+            </div>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(cartItems)}">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card-cart mb-3 p-3">
+                        <div class="form-check d-flex align-items-center">
+                            <input class="form-check-input cart-checkbox me-2" type="checkbox" id="selectAll" checked>
+                            <label class="form-check-label fw-800 text-muted small text-uppercase" style="letter-spacing: 1px;" for="selectAll">Chọn tất cả sản phẩm</label>
+                        </div>
+                    </div>
+
+                    <div class="card-cart">
+                        <div class="card-body p-0">
+                            <div th:each="item : ${cartItems}" class="cart-item d-flex align-items-center gap-3 p-3"
+                                 th:id="'item-row-' + ${item.id}"
+                                 th:data-id="${item.id}"
+                                 th:data-price="${item.product.price}"
+                                 th:data-qty="${item.quantity}">
+
+                                <input class="form-check-input cart-checkbox item-checkbox ms-1" type="checkbox" checked th:value="${item.id}">
+
+                                <img th:src="${item.product.imageUrl ?: '/images/default_bakery.png'}" class="cart-item-img shadow-sm" th:alt="${item.product.name}"/>
+
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-700 mb-1 text-dark" th:text="${item.product.name}">Tên SP</h6>
+                                    <div class="price-tag-cart" th:text="${#numbers.formatDecimal(item.product.price,0,'COMMA',0,'POINT')} + 'đ'"></div>
+                                </div>
+
+                                <!-- ĐÃ ĐỔI THÀNH CÚ PHÁP |...| ĐỂ FIX TRIỆT ĐỂ LỖI THYMELEAF -->
+                                <div class="qty-group">
+                                    <button type="button" class="qty-btn" th:onclick="|changeQty('${item.id}', -1)|">−</button>
+                                    <span class="fw-800 px-3 text-dark" th:id="'qty-' + ${item.id}" th:text="${item.quantity}">1</span>
+                                    <button type="button" class="qty-btn" th:onclick="|changeQty('${item.id}', 1)|">+</button>
+                                </div>
+
+                                <div class="text-end fw-800 d-none d-md-block text-dark" style="min-width:100px;" th:id="'sub-' + ${item.id}"
+                                     th:text="${#numbers.formatDecimal(item.product.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                                </div>
+
+                                <!-- ĐÃ FIX CÚ PHÁP Ở ĐÂY LUÔN -->
+                                <button type="button" th:onclick="|removeItem('${item.id}')|" class="btn btn-link text-danger p-2">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="sticky-top" style="top:100px; z-index: 10;">
+                        <div class="card-cart promo-box mb-3">
+                            <label class="fw-800 mb-2 small text-uppercase text-muted" style="letter-spacing: 1px;">Mã quà tặng / Giảm giá</label>
+                            <div class="input-group">
+                                <input type="text" id="couponCode" class="form-control border-0 shadow-none rounded-0" placeholder="Nhập mã tại đây...">
+                                <button class="btn btn-apply" type="button" onclick="applyCoupon()">Áp dụng</button>
+                            </div>
+                            <div id="couponMsg" class="small mt-2" style="display:none;"></div>
+                        </div>
+
+                        <div class="card-cart p-4">
+                            <h5 class="fw-800 mb-4 border-bottom pb-2 text-dark" style="letter-spacing: 1px;">💰 HÓA ĐƠN</h5>
+                            <div class="d-flex justify-content-between mb-3 text-muted">
+                                <span>Tạm tính (<span id="selectedCount">0</span> món):</span>
+                                <span class="fw-700 text-dark" id="tempTotal">0đ</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3 text-success" id="discountArea" style="display:none;">
+                                <span>Giảm giá:</span>
+                                <span class="fw-700" id="discountAmt">-0đ</span>
+                            </div>
+                            <hr class="my-4">
+                            <div class="d-flex justify-content-between mb-4">
+                                <span class="fw-800 fs-5 text-dark">Tổng tiền:</span>
+                                <span class="fw-900 fs-4 text-danger" id="grandTotal">0đ</span>
+                            </div>
+
+                            <form id="checkoutForm" action="/checkout" method="get">
+                                <input type="hidden" name="itemIds" id="selectedItemIds">
+                                <input type="hidden" name="coupon" id="appliedCoupon">
+                                <button type="submit" id="btnCheckout" class="btn btn-checkout-final shadow">
+                                    TIẾN HÀNH ĐẶT HÀNG <i class="fas fa-chevron-right ms-2"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOÀN BỘ LOGIC JS ĐƯỢC GIỮ NGUYÊN HOÀN TOÀN ĐỂ KHÔNG LỖI HỆ THỐNG -->
+    <script th:inline="javascript">
+        let appliedCouponCode = "";
+
+        function updateSummary() {
+            let total = 0;
+            let countSelected = 0;
+            let selectedIds = [];
+
+            document.querySelectorAll('.cart-item').forEach(row => {
+                const cb = row.querySelector('.item-checkbox');
+                if (cb && cb.checked) {
+                    const price = parseFloat(row.getAttribute('data-price'));
+                    const qty   = parseInt(row.getAttribute('data-qty'));
+
+                    total += price * qty;
+                    countSelected += qty;
+
+                    selectedIds.push(cb.value);
+                }
+            });
+
+            document.getElementById('tempTotal').textContent    = formatVND(total);
+            document.getElementById('selectedCount').textContent = countSelected;
+            document.getElementById('selectedItemIds').value    = selectedIds.join(',');
+            document.getElementById('btnCheckout').disabled     = (countSelected === 0);
+
+            const selectAll = document.getElementById('selectAll');
+            if (selectAll) {
+                const allCb      = document.querySelectorAll('.item-checkbox');
+                const allChecked = document.querySelectorAll('.item-checkbox:checked');
+                selectAll.checked = allCb.length > 0 && allCb.length === allChecked.length;
+            }
+
+            if (appliedCouponCode) {
+                recalcDiscount(total);
+            } else {
+                document.getElementById('grandTotal').textContent = formatVND(total);
+                document.getElementById('discountArea').style.setProperty('display', 'none', 'important');
+            }
+        }
+
+        function recalcDiscount(total) {
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+            const token  = document.querySelector('meta[name="_csrf"]').content;
+
+            fetch(`/api/discount/apply?code=${appliedCouponCode}&orderAmount=${total}`, {
+                method: 'POST',
+                headers: { [header]: token }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const discount = data.discountAmount || 0;
+                        const final    = data.finalAmount || (total - discount);
+
+                        document.getElementById('grandTotal').textContent  = formatVND(final);
+                        document.getElementById('discountArea').style.setProperty('display', 'flex', 'important');
+                        document.getElementById('discountAmt').textContent = "-" + formatVND(discount);
+                    } else {
+                        appliedCouponCode = "";
+                        document.getElementById('appliedCoupon').value = "";
+                        document.getElementById('couponCode').value    = "";
+                        document.getElementById('grandTotal').textContent = formatVND(total);
+                        document.getElementById('discountArea').style.setProperty('display', 'none', 'important');
+
+                        const msg = document.getElementById('couponMsg');
+                        msg.style.display = "block";
+                        msg.className = "small mt-2 text-danger fw-bold text-center p-2 bg-light rounded";
+                        msg.innerHTML = `<i class="fas fa-info-circle"></i> Mã bị hủy do đơn hàng không đủ điều kiện`;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('grandTotal').textContent = formatVND(total);
+                });
+        }
+
+        function changeQty(id, delta) {
+            const span = document.getElementById('qty-' + id);
+            const row  = document.getElementById('item-row-' + id);
+            let newQty = parseInt(span.textContent) + delta;
+            if (newQty < 1) return;
+
+            span.textContent = newQty;
+            row.setAttribute('data-qty', newQty);
+            const price = parseFloat(row.getAttribute('data-price'));
+            document.getElementById('sub-' + id).textContent = formatVND(price * newQty);
+
+            updateSummary();
+
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+            const token  = document.querySelector('meta[name="_csrf"]').content;
+            fetch('/api/cart/update-qty', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', [header]: token },
+                body: `itemId=${id}&quantity=${newQty}`
+            });
+        }
+
+        function applyCoupon() {
+            const code  = document.getElementById('couponCode').value.trim();
+            const total = parseFloat(
+                document.getElementById('tempTotal').textContent.replace(/[^0-9]/g, '')
+            );
+            if (!code) return;
+
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+            const token  = document.querySelector('meta[name="_csrf"]').content;
+
+            fetch(`/api/discount/apply?code=${code}&orderAmount=${total}`, {
+                method: 'POST',
+                headers: { [header]: token }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const msg = document.getElementById('couponMsg');
+                    if (data.success) {
+                        appliedCouponCode = code;
+                        document.getElementById('appliedCoupon').value = code;
+
+                        const discount = data.discountAmount || 0;
+                        const final    = data.finalAmount || (total - discount);
+
+                        document.getElementById('grandTotal').textContent  = formatVND(final);
+                        document.getElementById('discountArea').style.setProperty('display', 'flex', 'important');
+                        document.getElementById('discountAmt').textContent = "-" + formatVND(discount);
+
+                        msg.style.display = "block";
+                        msg.className = "small mt-2 text-success fw-bold";
+                        msg.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message || 'Áp dụng thành công!'}`;
+                    } else {
+                        alert(data.message || 'Mã không hợp lệ!');
+                    }
+                });
+        }
+
+        function removeItem(id) {
+            if (!confirm('Bạn muốn bỏ sản phẩm này khỏi giỏ hàng?')) return;
+
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+            const token  = document.querySelector('meta[name="_csrf"]').content;
+
+            fetch('/api/cart/remove', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', [header]: token },
+                body: `itemId=${id}`
+            }).then(res => res.json()).then(data => {
+                if(data.success) {
+                    document.getElementById('item-row-' + id).remove();
+                    updateSummary();
+                    showNotification("Đã xóa sản phẩm!", "success");
+                }
+            });
+        }
+
+        function formatVND(n) { return Math.round(n).toLocaleString('vi-VN') + 'đ'; }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('change', e => {
+                if (e.target.classList.contains('item-checkbox') || e.target.id === 'selectAll') {
+                    if (e.target.id === 'selectAll') {
+                        document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = e.target.checked);
+                    }
+                    updateSummary();
+                }
+            });
+            updateSummary();
+        });
+    </script>
+</section>
+</body>
+</html>

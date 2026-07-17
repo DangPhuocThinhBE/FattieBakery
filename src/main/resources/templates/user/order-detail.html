@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chi Tiết Đơn Hàng - Fattie Bakery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+    <style>
+        /* --- ĐỒNG BỘ BẢNG MÀU FATTIE BAKERY --- */
+        :root {
+            --logo-red: #8B3238;        /* Màu đỏ nâu từ logo */
+            --logo-red-dark: #6F282D;   /* Màu đỏ nâu đậm khi hover */
+            --bg-soft-cream: #FFFDF8;   /* Nền kem nhẹ ấm áp */
+            --text-main: #333333;
+            --text-muted: #666666;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-soft-cream);
+            color: var(--text-main);
+        }
+
+        /* Navbar thương hiệu */
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-style: italic;
+            color: var(--logo-red)!important;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+        }
+        .navbar {
+            background: #fff!important;
+            box-shadow: 0 2px 15px rgba(139, 50, 56, 0.08);
+            border-bottom: 1px solid #EEEEEE;
+        }
+
+        .font-playfair {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-style: italic;
+            color: var(--logo-red);
+        }
+
+        /* Khung vuông vắn cổ điển, sang trọng */
+        .card {
+            border: 1px solid #EEEEEE;
+            border-radius: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            background: #fff;
+        }
+
+        /* Hệ thống nút bấm vuông */
+        .btn-primary {
+            background: var(--logo-red);
+            border: none;
+            border-radius: 0;
+            font-weight: 700;
+            padding: 10px 20px;
+            color: white !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: var(--logo-red-dark);
+        }
+
+        .btn-outline-secondary {
+            border-radius: 0 !important;
+            border-color: #9E9E9E;
+            color: #616161;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 10px 20px;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #616161;
+            border-color: #616161;
+            color: #fff;
+        }
+
+        .price-tag {
+            color: var(--logo-red);
+            font-weight: 800;
+        }
+
+        /* Custom Table */
+        .table thead th {
+            background: #F9F6F0;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--logo-red);
+            font-weight: 700;
+            border-radius: 0;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .table td {
+            border-bottom: 1px solid #F1F1F1;
+        }
+
+        /* Banner thông báo thành công phong cách Fattie */
+        .success-banner {
+            background: #FAF6F0;
+            border: 1px dashed var(--logo-red);
+            border-radius: 0;
+        }
+
+        /* --- THANH TRẠNG THÁI ĐƠN HÀNG (TRACKING STYLES) --- */
+        .step { display: flex; align-items: center; flex-direction: column; flex: 1; }
+        .step-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .85rem;
+        }
+        .step-line { height: 2px; flex: 1; }
+
+        .step-active .step-dot { background: var(--logo-red); color: #fff; }
+        .step-done .step-dot { background: #2F855A; color: #fff; }
+        .step-inactive .step-dot { background: #EAEAEA; color: #999; }
+
+        .step-active .step-line { background: var(--logo-red); }
+        .step-done .step-line { background: #2F855A; }
+        .step-inactive .step-line { background: #EAEAEA; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">🍰 Fattie Bakery</a>
+        <div class="ms-auto d-flex gap-2">
+            <a href="/orders" class="btn btn-outline-secondary"><i class="fas fa-list me-2"></i>Lịch sử đơn</a>
+            <a href="/shop" class="btn btn-primary"><i class="fas fa-birthday-cake me-2"></i>Tiếp tục mua bánh</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="card success-banner mb-4 text-center p-4">
+        <div style="font-size: 3.5rem;">🍒</div>
+        <h4 class="font-playfair fs-3 mt-2" style="color: var(--logo-red);">Đặt hàng thành công!</h4>
+        <p class="text-muted small mb-0">Cảm ơn bạn đã tin tưởng chọn Fattie Bakery. Đơn hàng của bạn đã được gửi đến lò bánh để chuẩn bị.</p>
+    </div>
+
+    <!-- SỬA LỖI ĐÓNG NGOẶC CÁC KHỐI ĐIỀU KIỆN THÝMELEAF TẠI ĐÂY -->
+    <div class="card mb-4">
+        <div class="card-body p-4">
+            <h6 class="fw-bold mb-4 text-uppercase small" style="letter-spacing: 1px;"><i class="fas fa-map-marker-alt text-danger me-2"></i>Hành trình đơn bánh</h6>
+            <div class="d-flex align-items-start px-2">
+                <div class="step" th:classappend="${order.status.name() == 'PENDING' ? 'step-active' : 'step-done'}">
+                    <div class="step-dot">1</div>
+                    <div class="small fw-semibold mt-2 text-center" style="font-size: 0.85rem;">Chờ xác nhận</div>
+                </div>
+                <div class="step-line mt-3" th:classappend="${order.status.name() == 'PENDING' ? 'step-inactive' : 'step-done'}"></div>
+
+                <div class="step" th:classappend="${order.status.name() == 'CONFIRMED' ? 'step-active' :
+                                                   ((order.status.name() == 'SHIPPING' || order.status.name() == 'DELIVERED') ? 'step-done' : 'step-inactive')}">
+                    <div class="step-dot">2</div>
+                    <div class="small fw-semibold mt-2 text-center" style="font-size: 0.85rem;">Đã nhận đơn</div>
+                </div>
+                <div class="step-line mt-3" th:classappend="${(order.status.name() == 'SHIPPING' || order.status.name() == 'DELIVERED') ? 'step-done' : 'step-inactive'}"></div>
+
+                <div class="step" th:classappend="${order.status.name() == 'SHIPPING' ? 'step-active' :
+                                                   (order.status.name() == 'DELIVERED' ? 'step-done' : 'step-inactive')}">
+                    <div class="step-dot">3</div>
+                    <div class="small fw-semibold mt-2 text-center" style="font-size: 0.85rem;">Đang đi giao</div>
+                </div>
+                <div class="step-line mt-3" th:classappend="${order.status.name() == 'DELIVERED' ? 'step-done' : 'step-inactive'}"></div>
+
+                <div class="step" th:classappend="${order.status.name() == 'DELIVERED' ? 'step-done' : 'step-inactive'}">
+                    <div class="step-dot"><i class="fas fa-check"></i></div>
+                    <div class="small fw-semibold mt-2 text-center" style="font-size: 0.85rem;">Đã nhận bánh</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-7">
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3 text-uppercase small" style="letter-spacing: 0.5px;"><i class="fas fa-birthday-cake me-2" style="color:var(--logo-red);"></i>Chi tiết ổ bánh đã đặt</h6>
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th style="width: 55%;">Mẫu Bánh</th>
+                                <th class="text-center" style="width: 15%;">SL</th>
+                                <th class="text-end" style="width: 30%;">Thành tiền</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item : ${order.orderItems}">
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;" th:text="${item.productName}">Bánh kem dâu tây</div>
+                                    <div class="small text-muted" th:text="${#numbers.formatDecimal(item.productPrice,0,'COMMA',0,'POINT')} + 'đ'">250,000đ</div>
+                                </td>
+                                <td class="text-center fw-bold text-dark" th:text="${item.quantity}">1</td>
+                                <td class="text-end fw-bold price-tag" th:text="${#numbers.formatDecimal(item.subtotal,0,'COMMA',0,'POINT')} + 'đ'">250,000đ</td>
+                            </tr>
+                            </tbody>
+                            <tfoot style="border-top: 1px solid #EEEEEE;">
+                            <tr th:if="${order.discountAmount != null && order.discountAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                                <td colspan="2" class="text-end text-success small fw-bold">Ưu đãi giảm giá:</td>
+                                <td class="text-end text-success small fw-bold" th:text="'-' + ${#numbers.formatDecimal(order.discountAmount,0,'COMMA',0,'POINT')} + 'đ'">-0đ</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-end fw-bold text-dark fs-6 pt-3">TỔNG KHÁCH TRẢ:</td>
+                                <td class="text-end fw-800 fs-5 price-tag pt-2" th:text="${#numbers.formatDecimal(order.finalAmount,0,'COMMA',0,'POINT')} + 'đ'">0đ</td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3 text-uppercase small" style="letter-spacing: 0.5px;"><i class="fas fa-file-invoice me-2" style="color:var(--logo-red);"></i>Thông tin giao nhận bánh</h6>
+
+                    <div class="mb-3">
+                        <div class="small text-muted fw-semibold text-uppercase mb-1" style="font-size: 0.75rem;">Mã đơn hàng</div>
+                        <div class="fw-800 text-dark fs-5" th:text="${order.orderCode}">FT123</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="small text-muted fw-semibold text-uppercase mb-1" style="font-size: 0.75rem;">Thời gian đặt</div>
+                        <div class="fw-bold text-dark small" th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="small text-muted fw-semibold text-uppercase mb-1" style="font-size: 0.75rem;">Khách hàng nhận bánh</div>
+                        <div class="fw-bold text-dark" th:text="${order.customerName}">Nguyễn Văn A</div>
+                        <div class="text-muted small fw-medium" th:text="${order.customerPhone}">0903 492 258</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="small text-muted fw-semibold text-uppercase mb-1" style="font-size: 0.75rem;">Địa chỉ ship tới</div>
+                        <div class="fw-bold text-dark small" style="line-height: 1.4;" th:text="${order.shippingAddress}">Thủ Đức, TP.HCM</div>
+                    </div>
+
+                    <div class="mb-0">
+                        <div class="small text-muted fw-semibold text-uppercase mb-1" style="font-size: 0.75rem;">Hình thức thanh toán</div>
+                        <div class="fw-bold text-dark small"><i class="far fa-credit-card me-1 text-muted"></i> <span th:text="${order.paymentMethod}">COD</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

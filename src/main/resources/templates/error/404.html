@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, '404 - Không tìm thấy', ~{::style})}">
+<meta charset="UTF-8"/>
+<head>
+    <style>
+        /* --- STYLE CHO TRANG LỖI 404 PHONG CÁCH FATTIE BAKERY --- */
+        .error-code {
+            font-family: 'Playfair Display', serif;
+            font-size: 10rem;
+            font-weight: 900;
+            color: #8B3238 !important; /* Dùng mã màu trực tiếp để không sợ lỗi biến */
+            line-height: 1;
+            margin-bottom: 20px;
+            text-shadow: 6px 6px 0px #EADCC9;
+        }
+        .error-container { padding: 100px 0; text-align: center; }
+
+        .bakery-img { font-size: 5rem; animation: bounce 2s infinite; display: inline-block; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* ÉP CỨNG MÀU CHỮ VÀ NỀN CHO NÚT "VỀ TRANG CHỦ" */
+        .btn-bakery-fix {
+            background-color: #8B3238 !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 14px 35px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            display: inline-block;
+            text-decoration: none !important;
+            transition: 0.3s;
+        }
+        .btn-bakery-fix:hover {
+            background-color: #6F282D !important;
+            color: #FFFFFF !important;
+        }
+
+        /* ÉP CỨNG MÀU CHO NÚT "GHÉ CỬA HÀNG" */
+        .btn-bakery-outline-fix {
+            background-color: transparent !important;
+            border: 1px solid #8B3238 !important;
+            color: #8B3238 !important;
+            border-radius: 0 !important;
+            padding: 14px 35px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            display: inline-block;
+            text-decoration: none !important;
+            transition: 0.3s;
+        }
+        .btn-bakery-outline-fix:hover {
+            background-color: #8B3238 !important;
+            color: #FFFFFF !important;
+        }
+    </style>
+</head>
+<body>
+<section class="error-container container">
+    <div class="bakery-img">🥐</div>
+    <div class="error-code">404</div>
+    <h2 class="font-playfair text-dark mb-3" style="font-style: normal; font-weight: 700;">Ôi hỏng rồi bạn ơi!</h2>
+    <p class="text-muted fs-5 mb-5" style="font-size: 1.05rem;">Trang bạn tìm hiện không có ở Fattie Bakery hoặc đã bị chú mèo mập giấu đi mất rồi.</p>
+
+    <div class="d-flex justify-content-center gap-3">
+        <a href="/" class="btn btn-bakery-fix">Về Trang Chủ</a>
+        <a href="/shop" class="btn btn-bakery-outline-fix">Ghé Cửa Hàng</a>
+    </div>
+</section>
+</body>
+</html>

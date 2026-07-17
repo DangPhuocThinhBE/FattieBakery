@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tổng Quan - Fattie Bakery & Tea Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+    <style>
+        /* --- PHONG CÁCH TIỆM TRÀ VÀ BÁNH FATTIE BAKERY --- */
+        :root {
+            --logo-red: #8B3238;
+            --logo-red-dark: #6F282D;
+            --sidebar-bg: #221E1F;
+            --border-tan: #EADCC9;
+            --bg-cream-light: #FAF6F0;
+        }
+        body { font-family: 'Montserrat', sans-serif; background: #FFFDF8; color: #333; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+
+        /* Sidebar phẳng vuông phong cách tiệm trà cổ điển */
+        .sidebar { width: 260px; min-height: 100vh; background: var(--sidebar-bg); position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid rgba(234, 220, 201, 0.1); }
+        .sidebar-brand { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--border-tan); font-size: 1.3rem; padding: 24px 20px; border-bottom: 1px dashed rgba(234, 220, 201, 0.2); text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar-item { display: flex; align-items: center; padding: 13px 20px; color: rgba(255,255,255,.65); text-decoration: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; transition: .2s; border-left: 3px solid transparent; }
+        .sidebar-item:hover, .sidebar-item.active { color: #fff; background: rgba(139, 50, 56, .25); border-left-color: var(--logo-red); text-decoration: none; }
+        .sidebar-item i { width: 24px; font-size: 0.95rem; }
+
+        /* Vùng nội dung chính */
+        .main-content { margin-left: 260px; padding: 24px; }
+        .topbar { background: #fff; border: 1px solid var(--border-tan); border-radius: 0 !important; padding: 16px 24px; margin-bottom: 24px; }
+
+        /* Thẻ thống kê phẳng, viền mộc */
+        .card-stat { border: 1px solid var(--border-tan) !important; border-radius: 0 !important; background: #fff; padding: 20px; height: 100%; transition: 0.3s; }
+        .card-stat:hover { border-color: var(--logo-red) !important; }
+        .stat-icon { width: 50px; height: 50px; background: var(--bg-cream-light); color: var(--logo-red); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+        /* Bảng danh sách mộc mạc phẳng vuông */
+        .card-table { border: 1px solid var(--border-tan) !important; border-radius: 0 !important; background: #fff; }
+        .table thead th { background: var(--logo-red) !important; color: #fff !important; border: none; font-weight: 600; padding: 14px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        .table tbody td { border-bottom: 1px solid var(--border-tan); font-size: 0.9rem; padding: 14px; }
+
+        /* Badge trạng thái phẳng vuông */
+        .badge-flat { border-radius: 0 !important; font-weight: 600; font-size: 0.75rem; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+
+<!-- 🧭 SIDEBAR - THỰC ĐƠN ĐIỀU HÀNH TIỆM BÁNH -->
+<div class="sidebar">
+    <div class="sidebar-brand d-flex align-items-center gap-2">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAMAAABwKC9UAAAAclBMVEVHcEwBAQEAAAD///8gICASEhIsLCw4ODgAQEBMTExYWFhkZGRsbGx0dHR8fHyAgICEhISIiIiKioqNjY2UlJSZmZmdnZ2hoaGlpaWpqamtra2wsLCxtba2tra3t7e4uLjExMTLy8vU1NTY2Njc3Nzk5OT///9376oYAAAAFXRSTlMAgMCf76Cg0L+v8PCwsNC/v79/7++P87qVAAACQElEQVR42u3b2XKCMBCG4Yg7shGWhSgqIu77v6wV69SpEwKTTv8XvshMAnmTkIAsyzLMcg6Wscw9mU/n29z3S3Wp/1CfqXfS53XN65Uubv6S5R/fH8uL6UfSp6G8vN8X6unre8X8w8v0U3N780r86Z36or388Sj89FF61V1++iS93VfP8M9B6Nfbyw9ve3/X0Xb6/O78e9fbt/vHPrf7p9Mft6tnt1g+XN99eYwVshUrZitWzFasiK1YEVuxIrZiRWzFitg6g62XshUrYitWzFasiK1YEVuxIrZiRWzFitg6gy2XshUrYitWzFasiK1YEVuxIrZiRWzFitg6gy2XshUrYitWzFasiK1YEVuxIrZiRWzFitg6g62XshUrYitWzFasiK1YEVuxIrZiRWzFitg6g22XshUrYitWzFasiK1YEVuxIrZiRWzFitg6gy2XshUrYitWzFasiK1YEVuxIrZiRWzFitg6g62XshUrYitWzFasiK1YEVuxIrZiRWzFitg6g22XshUrYitWzFasiK1YEVuxIrZiRWzFitg6g62XshUrYitWzFasiK1YEVuxIrZiRWzFitg6gy2XshUrYitWzFasiK1YEVuxIrZiRWzFitg6gy2XshUrYitWzFasiK1YEVuxIrZiRWzFitg6gy2XshUrYitWzFasiK1YEVuxIrZiRWzFitg6g62XshUrYitWzFasiK1YEVuxIrZiRWzFitg6Ay3LsizL/A0f6Z0D7R/q2AAAAABJRU5ErkJggg=="
+             alt="Logo" style="height: 30px; object-fit: contain; filter: brightness(0) invert(1) sepia(1) sign(100%);">
+        <span>Fattie Admin</span>
+    </div>
+    <div class="py-2">
+        <a href="/admin/dashboard" class="sidebar-item active"><i class="fas fa-cookie-bite"></i> Tổng quan lò bánh</a>
+        <a href="/admin/products" class="sidebar-item"><i class="fas fa-bread-slice"></i> Thực đơn bánh & trà</a>
+        <a href="/admin/categories" class="sidebar-item"><i class="fas fa-tags"></i> Danh mục bánh</a>
+        <a href="/admin/orders" class="sidebar-item"><i class="fas fa-mug-hot"></i> Đơn đặt bàn & Ship</a>
+        <a href="/admin/users" class="sidebar-item"><i class="fas fa-users"></i> Khách thích ngọt</a>
+        <a href="/admin/discounts" class="sidebar-item"><i class="fas fa-percentage"></i> Ưu đãi tiệc trà</a>
+        <a href="/admin/statistics" class="sidebar-item"><i class="fas fa-chart-bar"></i> Doanh thu tiệm</a>
+        <hr style="border-color:rgba(234, 220, 201, 0.15); margin:12px 20px;"/>
+        <a href="/" class="sidebar-item"><i class="fas fa-store"></i> Ghé Trang Chủ Web</a>
+        <a href="/logout" class="sidebar-item" style="color:#e74c3c;"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+    </div>
+</div>
+
+<!-- ☕ NỘI DUNG CHÍNH (MAIN CONTENT) -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold font-playfair" style="letter-spacing: 0.5px;">🍞 HÔM NAY TẠI BẾP LÒ FATTIE</h5>
+        <div class="small fw-semibold text-muted"><i class="far fa-clock me-1"></i>Trạng thái: Đang mở cửa</div>
+    </div>
+
+    <!-- 📊 THẺ THỐNG KÊ DOANH SỐ TIỆM BÁNH -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card-stat d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-bold text-uppercase d-block mb-1">Doanh thu bánh</span>
+                    <h4 class="fw-bold mb-0 text-dark">4,520,000đ</h4>
+                </div>
+                <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-stat d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-bold text-uppercase d-block mb-1">Mẻ bánh đã đặt</span>
+                    <h4 class="fw-bold mb-0 text-dark">48 Đơn</h4>
+                </div>
+                <div class="stat-icon"><i class="fas fa-birthday-cake"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-stat d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-bold text-uppercase d-block mb-1">Khách ghé tiệm</span>
+                    <h4 class="fw-bold mb-0 text-dark">126 Lượt</h4>
+                </div>
+                <div class="stat-icon"><i class="fas fa-smile-wink"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-stat d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-bold text-uppercase d-block mb-1">Bánh hết hàng</span>
+                    <h4 class="fw-bold mb-0 text-danger">3 Loại</h4>
+                </div>
+                <div class="stat-icon" style="color:#e74c3c;"><i class="fas fa-exclamation-triangle"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- 🥐 BẢNG ĐƠN ĐẶT TIỆC TRÀ / GIAO BÁNH MỚI NHẤT -->
+        <div class="col-md-8">
+            <div class="card-table">
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="border-color: var(--border-tan) !important;">
+                    <h6 class="mb-0 fw-bold font-playfair text-uppercase"><i class="fas fa-receipt me-2" style="color:var(--logo-red)"></i>Đơn đặt bánh mới nhận</h6>
+                    <a href="/admin/orders" class="small text-decoration-none fw-bold" style="color: var(--logo-red);">Xem tất cả</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Thực đơn gọi</th>
+                            <th>Hình thức</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="fw-bold">#FT-1024</td>
+                            <td>Hoàng Hải Nam</td>
+                            <td class="small text-muted">2x Bánh Sừng Bò + 1x Trà Đào Cam Sả</td>
+                            <td><span class="badge badge-flat text-primary" style="background:#e8f4fd;">Dùng tại quán</span></td>
+                            <td class="fw-bold">145,000đ</td>
+                            <td><span class="badge badge-flat text-warning" style="background:#fff9db;">Chờ ủ bánh</span></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">#FT-1023</td>
+                            <td>Nguyễn Thùy Linh</td>
+                            <td class="small text-muted">1x Bánh Kem Matcha Tươi (Size M)</td>
+                            <td><span class="badge badge-flat text-success" style="background:#e8f8f5;">Giao tận nơi</span></td>
+                            <td class="fw-bold">350,000đ</td>
+                            <td><span class="badge badge-flat text-info" style="background:#e0f7fa;">Đang giao shipper</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🍰 DANH SÁCH BÁNH BÁN CHẠY NHẤT TRONG NGÀY -->
+        <div class="col-md-4">
+            <div class="card-table">
+                <div class="p-3 border-bottom" style="border-color: var(--border-tan) !important;">
+                    <h6 class="mb-0 fw-bold font-playfair text-uppercase"><i class="fas fa-fire me-2" style="color:var(--logo-red)"></i>Bánh ra lò chạy nhất</h6>
+                </div>
+                <div class="p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom" style="border-style: dashed !important; border-color: var(--border-tan) !important;">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fs-4">🥐</span>
+                            <div>
+                                <h6 class="mb-0 fw-bold small">Bánh Sừng Bò Trứng Muối</h6>
+                                <span class="text-muted" style="font-size: 11px;">Đã bán: 42 chiếc</span>
+                            </div>
+                        </div>
+                        <span class="badge badge-flat text-success" style="background:#e8f8f5;">Còn lò</span>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom" style="border-style: dashed !important; border-color: var(--border-tan) !important;">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fs-4">🍓</span>
+                            <div>
+                                <h6 class="mb-0 fw-bold small">Tart Dâu Tây Kem Béo</h6>
+                                <span class="text-muted" style="font-size: 11px;">Đã bán: 28 chiếc</span>
+                            </div>
+                        </div>
+                        <span class="badge badge-flat text-success" style="background:#e8f8f5;">Còn lò</span>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fs-4">🫖</span>
+                            <div>
+                                <h6 class="mb-0 fw-bold small">Trà Nhài Thảo Mộc Ấm</h6>
+                                <span class="text-muted" style="font-size: 11px;">Đã bán: 19 ấm</span>
+                            </div>
+                        </div>
+                        <span class="badge badge-flat text-danger" style="background:#fce4d6;">Hết nước</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

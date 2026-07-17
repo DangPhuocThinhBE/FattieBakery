@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, 'Giỏ Hàng', ~{::extraStyles})}">
+<meta charset="UTF-8"/>
+<head>
+    <th:block th:fragment="extraStyles">
+        <style>
+            /* --- ĐỒNG BỘ PHONG CÁCH CỔ ĐIỂN FATTIE BAKERY --- */
+            :root {
+                --logo-red: #8B3238;        /* Màu đỏ nâu từ logo */
+                --logo-red-dark: #6F282D;   /* Màu đỏ nâu đậm khi hover */
+                --bg-soft-cream: #FFFDF8;   /* Nền kem nhẹ ấm áp */
+                --text-main: #333333;
+                --text-muted: #666666;
+                --border-tan: #EADCC9;
+            }
+
+            .cart-container {
+                background: var(--bg-soft-cream);
+                font-family: 'Montserrat', sans-serif;
+                color: var(--text-main);
+            }
+
+            .font-playfair {
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+            }
+
+            /* Tiêu đề giỏ hàng dạng hộp cổ điển */
+            .cart-header {
+                background: #FAF6F0;
+                padding: 30px 0;
+                border-radius: 0 !important;
+                margin-bottom: 40px;
+                border: 1px solid var(--border-tan);
+            }
+
+            /* Bảng và hộp tóm tắt dạng vuông phẳng */
+            .bakery-card-flat {
+                border: 1px solid var(--border-tan) !important;
+                border-radius: 0 !important;
+                background: #fff;
+            }
+
+            /* Căn chỉnh bảng chuẩn tiệm bánh */
+            .bakery-table thead {
+                background: #FAF6F0 !important;
+                border-bottom: 1px solid var(--border-tan);
+            }
+            .bakery-table th {
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 0.85rem;
+                letter-spacing: 0.5px;
+                color: var(--text-main);
+                padding: 15px 10px;
+            }
+            .bakery-table td {
+                border-bottom: 1px solid #F5F5F5;
+            }
+
+            /* Hình ảnh mẫu bánh nhỏ trong giỏ */
+            .cart-item-img {
+                border: 1px solid var(--border-tan);
+                border-radius: 0 !important;
+                padding: 3px;
+                background: #fff;
+                width: 65px;
+                height: 65px;
+                object-fit: cover;
+            }
+
+            .price-highlight {
+                color: var(--logo-red);
+                font-weight: 700;
+            }
+
+            /* Nút bấm góc vuông mộc mạc */
+            .btn-bakery {
+                background: var(--logo-red);
+                border: none;
+                border-radius: 0 !important;
+                padding: 12px 30px;
+                font-weight: 700;
+                color: white;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.9rem;
+                transition: 0.3s;
+                display: inline-block;
+                text-align: center;
+            }
+            .btn-bakery:hover {
+                background: var(--logo-red-dark);
+                color: white;
+                box-shadow: 0 4px 12px rgba(139, 50, 56, 0.15);
+            }
+
+            .btn-bakery-outline {
+                background: transparent;
+                border: 1px solid var(--logo-red);
+                border-radius: 0 !important;
+                padding: 10px 25px;
+                font-weight: 700;
+                color: var(--logo-red);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.85rem;
+                transition: 0.3s;
+                text-decoration: none;
+            }
+            .btn-bakery-outline:hover {
+                background: var(--logo-red);
+                color: white;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+
+<section class="py-5 cart-container">
+    <div class="container">
+
+        <div class="cart-header text-center shadow-sm">
+            <h2 class="font-playfair text-dark mb-1" style="font-style: normal;">🛒 Giỏ Hàng Của Bạn</h2>
+            <p class="text-muted mb-0 small fw-medium">Kiểm tra lại những món bánh ngọt và trà thơm bạn đã chọn trước khi ra quầy.</p>
+        </div>
+
+        <div th:if="${#lists.isEmpty(cartItems)}" class="text-center py-5">
+            <div style="font-size: 5rem;">🥐</div>
+            <h4 class="font-playfair text-dark mt-3" style="font-style: normal;">Giỏ hàng đang trống rỗng bạn ơi!</h4>
+            <p class="text-muted small mb-4">Hãy chọn một vài chiếc bánh sừng bò hay lát bánh ngọt ấm áp nhé.</p>
+            <a href="/shop" class="btn btn-bakery">Tiếp tục mua sắm</a>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(cartItems)}" class="row g-4">
+            <div class="col-lg-8">
+                <div class="card bakery-card-flat table-responsive">
+                    <table class="table bakery-table align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th class="ps-4">Mẫu bánh & Trà</th>
+                            <th>Giá lẻ</th>
+                            <th>Số lượng</th>
+                            <th>Tổng tính</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${cartItems}">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <img th:src="${item.product.imageUrl ?: '/images/default.png'}"
+                                         class="cart-item-img" th:alt="${item.product.name}"/>
+                                    <div class="ms-3">
+                                        <div class="fw-bold text-dark small" th:text="${item.product.name}">Tên SP</div>
+                                        <small class="text-muted" style="font-size: 11px;" th:text="${item.product.category?.name}">Danh mục</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="small" th:text="${#numbers.formatDecimal(item.product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</td>
+                            <td class="fw-bold small" th:text="${item.quantity}">1</td>
+                            <td class="price-highlight small"
+                                th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</td>
+                            <td class="text-end pe-4">
+                                <a th:href="@{/cart/remove/{id}(id=${item.id})}" class="text-muted hover-danger" title="Xóa khỏi giỏ">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <a href="/shop" class="btn btn-bakery-outline">
+                        <i class="fas fa-arrow-left me-2"></i> Trở lại lò bánh
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card bakery-card-flat p-4">
+                    <h5 class="font-playfair text-dark mb-4 border-bottom pb-2" style="font-style: normal;">Tóm tắt đơn hàng</h5>
+
+                    <div class="d-flex justify-content-between mb-3 small fw-medium">
+                        <span class="text-muted">Tạm tính bàn trà:</span>
+                        <span th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                    </div>
+
+                    <hr style="border-top: 1px dashed var(--border-tan); opacity: 1;">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold text-dark">Tổng cộng:</span>
+                        <span class="price-highlight fs-4" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                    </div>
+
+                    <a href="/checkout" class="btn btn-bakery w-100 py-3">TIẾN HÀNH ĐẶT HÀNG</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+</body>
+</html>

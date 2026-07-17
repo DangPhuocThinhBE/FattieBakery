@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, 'Hồ sơ của bạn', ~{::extraStyles})}">
+<meta charset="UTF-8"/>
+<head>
+    <th:block th:fragment="extraStyles">
+        <style>
+            /* --- ĐỒNG BỘ PHONG CÁCH CỔ ĐIỂN FATTIE BAKERY --- */
+            :root {
+                --logo-red: #8B3238;        /* Màu đỏ nâu từ logo */
+                --logo-red-dark: #6F282D;   /* Màu đỏ nâu đậm khi hover */
+                --bg-soft-cream: #FFFDF8;   /* Nền kem nhẹ ấm áp */
+                --text-main: #333333;
+                --text-muted: #666666;
+                --border-tan: #EADCC9;      /* Màu viền nâu nhạt nhã nhặn */
+            }
+
+            section { background: var(--bg-soft-cream); font-family: 'Montserrat', sans-serif; }
+
+            /* Thiết kế Box vuông vắn, cứng cáp theo phong cách cổ điển */
+            .profile-card {
+                border: 1px solid var(--border-tan);
+                border-radius: 0 !important;
+                box-shadow: 0 4px 20px rgba(139, 50, 56, 0.05);
+                background: #fff;
+                overflow: hidden;
+            }
+
+            .profile-header {
+                background: var(--logo-red);
+                padding: 40px;
+                color: white;
+                text-align: center;
+                border-bottom: 2px solid var(--logo-red-dark);
+            }
+
+            .font-playfair {
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+            }
+
+            /* Khung Avatar vuông tinh tế */
+            .avatar-box {
+                width: 130px;
+                height: 130px;
+                border: 3px solid var(--border-tan);
+                border-radius: 0 !important;
+                margin: 0 auto 15px;
+                overflow: hidden;
+                background: #FAF6F0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+
+            .info-label {
+                font-size: 0.8rem;
+                font-weight: 700;
+                color: var(--logo-red);
+                text-transform: uppercase;
+                margin-bottom: 6px;
+                letter-spacing: 1px;
+            }
+
+            /* Ô hiển thị thông tin dạng mộc vuông */
+            .info-value {
+                background: #FAF6F0;
+                border: 1px solid #EEEEEE;
+                padding: 12px 20px;
+                border-radius: 0 !important;
+                font-weight: 600;
+                color: var(--text-main);
+                margin-bottom: 25px;
+                font-size: 0.95rem;
+            }
+
+            /* Tag giỏ hàng góc vuông */
+            .badge-bakery {
+                background: #FAF6F0;
+                color: var(--logo-red);
+                border: 1px solid var(--border-tan);
+                padding: 6px 16px;
+                font-weight: 700;
+                font-size: 0.85rem;
+                letter-spacing: 0.5px;
+                display: inline-block;
+            }
+
+            /* Nút chỉnh sửa vuông vắn, sang trọng */
+            .btn-edit-profile {
+                background: var(--logo-red);
+                border: none;
+                border-radius: 0 !important;
+                padding: 12px 30px;
+                font-weight: 700;
+                color: white;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.9rem;
+                transition: 0.3s;
+                box-shadow: 0 4px 10px rgba(139, 50, 56, 0.15);
+            }
+            .btn-edit-profile:hover {
+                background: var(--logo-red-dark);
+                transform: translateY(-2px);
+                color: white;
+                box-shadow: 0 6px 15px rgba(139, 50, 56, 0.25);
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<section class="py-5">
+    <div class="container">
+        <div class="profile-card mx-auto" style="max-width: 800px;">
+
+            <div class="profile-header">
+                <div class="avatar-box shadow-sm">
+                    <img th:src="${user != null && user.avatarUrl != null ? user.avatarUrl : '/images/default-avatar.png'}"
+                         alt="Avatar">
+                </div>
+
+                <h2 class="font-playfair display-6 mb-1 mt-3" th:text="${user != null && user.fullName != null ? user.fullName : 'Thành viên Fattie Bakery'}">Tên Người Dùng</h2>
+                <p class="opacity-75 small" th:text="${user != null ? user.email : 'chưa_cập_nhật_email'}">email@example.com</p>
+
+                <div class="mt-3">
+                    <span class="badge-bakery text-uppercase">
+                        <i class="fas fa-shopping-basket me-2"></i> Giỏ bánh của bạn: <span th:text="${cartCount ?: 0}">0</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-4 p-md-5">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fas fa-phone-alt me-1"></i> Số điện thoại</div>
+                        <div class="info-value" th:text="${user != null && user.phone != null && user.phone != '' ? user.phone : 'Chưa cập nhật'}">090...</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fas fa-user me-1"></i> Tên đăng nhập</div>
+                        <div class="info-value" th:text="${user != null ? user.username : 'Đang tải...'}">user123</div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="info-label"><i class="fas fa-map-marker-alt me-1"></i> Địa chỉ giao nhận bánh</div>
+                        <div class="info-value" th:text="${user != null && user.address != null && user.address != '' ? user.address : 'Chưa cập nhật địa chỉ giao hàng'}">Địa chỉ cụ thể...</div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a th:href="@{/user/profile/edit}" class="btn btn-edit-profile">
+                        <i class="fas fa-feather-alt me-2"></i> Chỉnh Sửa Hồ Sơ
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+</body>
+</html>

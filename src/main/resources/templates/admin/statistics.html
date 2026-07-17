@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Báo Cáo Doanh Thu - Fattie Bakery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --logo-red: #8B3238;
+            --sidebar-bg: #221E1F;
+            --bg-cream: #FFFDF8;
+            --border-tan: #EADCC9;
+        }
+        body { font-family:'Montserrat',sans-serif; background:var(--bg-cream); }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+
+        .sidebar { width: 260px; min-height: 100vh; background: var(--sidebar-bg); position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid rgba(234, 220, 201, 0.1); }
+        .sidebar-brand { font-family:'Playfair Display',serif; color:#EADCC9; font-size:1.4rem; padding:24px 20px; border-bottom:1px dashed #444; }
+        .sidebar-item { display:flex; align-items:center; padding:13px 20px; color:rgba(255,255,255,.6); text-decoration:none; font-weight:600; font-size:0.85rem; text-transform:uppercase; }
+        .sidebar-item:hover, .sidebar-item.active { color:#fff; background:rgba(139,50,56,.3); border-left:4px solid var(--logo-red); }
+
+        .main-content { margin-left: 260px; padding: 24px; }
+        .topbar { background: #fff; border: 1px solid var(--border-tan); padding: 16px 24px; margin-bottom: 24px; }
+
+        .stat-card { border: 1px solid var(--border-tan); padding: 20px; background: #fff; text-align: center; }
+        .stat-value { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--logo-red); font-weight: 900; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+
+        .card { border: 1px solid var(--border-tan) !important; border-radius: 0 !important; background: #fff; box-shadow: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-cookie-bite me-2"></i>Fattie Admin</div>
+    <div class="sidebar-menu">
+        <a href="/admin/statistics" class="sidebar-item active"><i class="fas fa-chart-line"></i> Báo cáo tiệm</a>
+        <a href="/admin/products" class="sidebar-item"><i class="fas fa-bread-slice"></i> Thực đơn</a>
+        <a href="/admin/orders" class="sidebar-item"><i class="fas fa-mug-hot"></i> Đơn hàng</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="topbar"><h5 class="mb-0 fw-bold font-playfair" style="color:var(--logo-red);">📊 BÁO CÁO DOANH THU TIỆC TRÀ</h5></div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Tổng doanh thu</div>
+                <div class="stat-value" th:text="${revenueFormatted} + 'đ'">0đ</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Doanh thu tháng này</div>
+            <div class="stat-value" th:text="${monthRevFormatted} + 'đ'">0đ</div>            </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Số loại bánh</div>
+            <div class="stat-value" th:text="${totalProducts}">0</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Thành viên mới</div>
+            <div class="stat-value" th:text="${totalUsers}">0</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3 font-playfair">📦 ĐƠN HÀNG TẠI BẾP</h6>
+            <canvas id="orderStatusChart" style="max-height: 250px;"></canvas>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3 font-playfair">💰 BIẾN ĐỘNG DOANH THU</h6>
+            <canvas id="revenueChart" style="max-height: 250px;"></canvas>
+        </div>
+    </div>
+</div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Nhận dữ liệu từ Controller một cách an toàn
+    const revenueData = /*[[${stats.monthlyRevenueList}]]*/ [0,0,0,0,0,0,0,0,0,0,0,0];
+    const pending = /*[[${stats.pendingOrders ?: 0}]]*/ 0;
+    const delivered = /*[[${stats.deliveredOrders ?: 0}]]*/ 0;
+
+    // Biểu đồ Doanh thu (Bar)
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: {
+            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+            datasets: [{
+                label: 'Doanh thu (đ)',
+                data: revenueData,
+                backgroundColor: '#8B3238',
+                borderRadius: 0
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    // Biểu đồ Đơn hàng (Doughnut)
+    new Chart(document.getElementById('orderStatusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Chờ ủ bánh', 'Đã dùng xong'],
+            datasets: [{
+                data: [pending, delivered],
+                backgroundColor: ['#EADCC9', '#8B3238']
+            }]
+        },
+        options: { responsive: true }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

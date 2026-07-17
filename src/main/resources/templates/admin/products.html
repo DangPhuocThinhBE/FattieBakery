@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản Lý Thực Đơn - Fattie Bakery Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --logo-red: #8B3238;
+            --sidebar-bg: #221E1F;
+            --bg-cream: #FFFDF8;
+            --border-tan: #EADCC9;
+        }
+        body { font-family:'Montserrat',sans-serif; background:var(--bg-cream); }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+
+        /* Sidebar phẳng, góc vuông */
+        .sidebar { width: 260px; min-height: 100vh; background: var(--sidebar-bg); position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid rgba(234, 220, 201, 0.1); }
+        .sidebar-brand { font-family:'Playfair Display',serif; color:#EADCC9; font-size:1.4rem; padding:24px 20px; border-bottom:1px dashed #444; }
+        .sidebar-item { display:flex; align-items:center; padding:13px 20px; color:rgba(255,255,255,.6); text-decoration:none; font-weight:600; font-size:0.85rem; text-transform:uppercase; }
+        .sidebar-item:hover, .sidebar-item.active { color:#fff; background:rgba(139,50,56,.3); border-left:4px solid var(--logo-red); }
+
+        .main-content { margin-left: 260px; padding: 24px; }
+        .topbar { background: #fff; border: 1px solid var(--border-tan); padding: 16px 24px; margin-bottom: 24px; }
+
+        .card { border: 1px solid var(--border-tan) !important; border-radius: 0 !important; background: #fff; box-shadow: none !important; }
+        .btn-bakery { background: var(--logo-red); color: white; border-radius: 0 !important; font-weight: 700; text-transform: uppercase; }
+
+        /* Table Mộc */
+        .table thead th { background: var(--logo-red); color: white; border: none; font-size: 0.8rem; text-transform: uppercase; }
+        .product-img-sm { width: 50px; height: 50px; object-fit: cover; border: 1px solid var(--border-tan); }
+        .badge-active { background: #e8f5e9; color: #2e7d32; border-radius: 0; font-size: 0.7rem; text-transform: uppercase; }
+        .badge-inactive { background: #ffebee; color: #c62828; border-radius: 0; font-size: 0.7rem; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-cookie-bite me-2"></i>Fattie Admin</div>
+    <div class="sidebar-menu">
+        <a href="/admin/products" class="sidebar-item active"><i class="fas fa-bread-slice"></i> Thực Đơn Bánh & Trà</a>
+        <a href="/admin/dashboard" class="sidebar-item"><i class="fas fa-chart-line"></i> Tổng Quan</a>
+        <a href="/admin/orders" class="sidebar-item"><i class="fas fa-mug-hot"></i> Đơn Đặt Bàn</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="topbar d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold font-playfair" style="color:var(--logo-red);">🥐 QUẢN LÝ THỰC ĐƠN</h5>
+        <a href="/admin/products/new" class="btn btn-bakery px-3"><i class="fas fa-plus me-2"></i>Món mới</a>
+    </div>
+
+    <div class="card mb-4 p-3">
+        <form method="get" action="/admin/products" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="small fw-bold">TÊN MÓN</label>
+                <input type="text" class="form-control" name="name" th:value="${searchName}" placeholder="Tìm bánh, trà..."/>
+            </div>
+            <div class="col-md-4">
+                <label class="small fw-bold">DANH MỤC</label>
+                <select class="form-select" name="categoryId">
+                    <option value="">Tất cả</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-bakery w-100">Tìm kiếm</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                <tr><th>Ảnh</th><th>Tên Món</th><th>Giá</th><th>Tồn Lò</th><th>Trạng thái</th><th>Thao tác</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${products.content}">
+                    <td class="align-middle"><img th:src="${p.imageUrl}" class="product-img-sm"/></td>
+                    <td class="align-middle fw-bold" th:text="${p.name}">Bánh Sừng Bò</td>
+                    <td class="align-middle" th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')} + 'đ'">...</td>
+                    <td class="align-middle" th:text="${p.stockQuantity}">10</td>
+                    <td class="align-middle"><span th:class="${p.active ? 'badge badge-active' : 'badge badge-inactive'}" th:text="${p.active ? 'Sẵn sàng' : 'Hết món'}"></span></td>
+                    <td class="align-middle">
+                        <a th:href="@{/admin/products/edit/{id}(id=${p.id})}" class="btn btn-sm btn-outline-dark rounded-0"><i class="fas fa-edit"></i></a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

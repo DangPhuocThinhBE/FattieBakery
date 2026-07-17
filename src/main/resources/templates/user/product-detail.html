@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, ${product.name}, ~{::extraStyles})}"><meta charset="UTF-8"/>
+<meta charset="UTF-8"/>
+<head>
+    <th:block th:fragment="extraStyles">
+        <style>
+            /* --- ĐỒNG BỘ PHONG CÁCH CỔ ĐIỂN FATTIE BAKERY --- */
+            :root {
+                --logo-red: #8B3238;        /* Màu đỏ nâu từ logo */
+                --logo-red-dark: #6F282D;   /* Màu đỏ nâu đậm khi hover */
+                --bg-soft-cream: #FFFDF8;   /* Nền kem nhẹ ấm áp */
+                --text-main: #333333;
+                --text-muted: #666666;
+            }
+
+            .product-detail-container { padding: 60px 0; background: var(--bg-soft-cream); font-family: 'Montserrat', sans-serif; }
+            .breadcrumb-item a { color: var(--logo-red); text-decoration: none; font-weight: 600; }
+            .breadcrumb-item.active { color: var(--text-muted); }
+
+            .product-main-img-wrap {
+                border: 1px solid #EEEEEE;
+                border-radius: 0 !important;
+                overflow: hidden;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+                background: #fff;
+                position: relative;
+            }
+            .product-main-img { width: 100%; height: auto; object-fit: cover; max-height: 550px; }
+
+            .font-playfair {
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+                font-style: italic;
+                color: var(--logo-red);
+            }
+
+            .price-tag-detail { color: var(--logo-red); font-weight: 800; font-size: 2.3rem; line-height: 1; }
+            .price-original-detail { text-decoration: line-through; color: #adb5bd; font-size: 1.1rem; }
+
+            .info-chip-detail {
+                background: #FAF6F0;
+                color: var(--logo-red);
+                border: 1px solid #EADCC9;
+                border-radius: 0 !important;
+                padding: 6px 16px;
+                font-weight: 700;
+                font-size: 0.85rem;
+                display: inline-flex;
+                align-items: center;
+                margin-bottom: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .qty-input-group {
+                display: flex;
+                align-items: center;
+                background: #fff;
+                border-radius: 0 !important;
+                padding: 2px;
+                width: fit-content;
+                border: 1px solid #CCCCCC;
+            }
+            .qty-btn-detail {
+                width: 40px;
+                height: 40px;
+                border-radius: 0 !important;
+                border: none;
+                background: #FAF6F0;
+                color: var(--text-main);
+                font-weight: 700;
+                font-size: 1.1rem;
+                transition: 0.2s;
+            }
+            .qty-btn-detail:hover { background: var(--logo-red); color: white; }
+            #qtyDisplay { width: 50px; text-align: center; font-weight: 700; font-size: 1rem; color: var(--text-main); }
+
+            .btn-add-to-cart {
+                background: var(--logo-red);
+                border: none;
+                border-radius: 0 !important;
+                padding: 14px 35px;
+                font-weight: 700;
+                color: white;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.95rem;
+                transition: 0.3s;
+                box-shadow: 0 4px 10px rgba(139, 50, 56, 0.15);
+            }
+            .btn-add-to-cart:hover {
+                background: var(--logo-red-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(139, 50, 56, 0.25);
+            }
+
+            .discount-badge-custom {
+                position: absolute;
+                top: 15px;
+                left: 15px;
+                background: var(--logo-red);
+                color: white;
+                padding: 4px 12px;
+                font-weight: 700;
+                font-size: 0.85rem;
+                letter-spacing: 0.5px;
+            }
+
+            .related-section { background: #FAF6F0; border-top: 1px solid #EEEEEE; padding: 60px 0; font-family: 'Montserrat', sans-serif; }
+
+            .product-card-custom {
+                border: 1px solid #EEEEEE !important;
+                border-radius: 0 !important;
+                background: #fff;
+                transition: all 0.3s ease;
+            }
+            .product-card-custom:hover {
+                transform: translateY(-3px);
+                border-color: var(--logo-red) !important;
+                box-shadow: 0 4px 20px rgba(139, 50, 56, 0.05);
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+
+<section>
+    <div class="product-detail-container">
+        <div class="container">
+            <nav aria-label="breadcrumb" class="mb-5">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="/shop">Cửa hàng</a></li>
+                    <li class="breadcrumb-item active" th:text="${product.name}">Sản phẩm</li>
+                </ol>
+            </nav>
+
+            <div class="row g-5">
+                <div class="col-lg-5">
+                    <div class="product-main-img-wrap">
+                        <img th:src="${product.imageUrl ?: '/images/default.png'}"
+                             class="product-main-img" th:alt="${product.name}">
+                        <span th:if="${product.discountPercent > 0}"
+                              class="discount-badge-custom"
+                              th:text="'-' + ${product.discountPercent} + '%'"></span>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <span class="text-uppercase text-muted fw-semibold mb-2 d-block small"
+                          style="letter-spacing: 1.5px;" th:text="${product.category?.name}">DANH MỤC</span>
+                    <h1 class="font-playfair display-6 mb-3 text-dark" style="font-style: normal;" th:text="${product.name}">Tên sản phẩm</h1>
+
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <span class="price-tag-detail"
+                              th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                        <span class="price-original-detail" th:if="${product.originalPrice != null}"
+                              th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="info-chip-detail me-2" th:if="${product.size}">
+                            <i class="fas fa-ruler-combined me-2"></i> Kích thước: <span th:text="${product.size}" class="ms-1"></span>
+                        </div>
+                        <div class="info-chip-detail me-2">
+                            <i class="fas fa-box-open me-2"></i> Lò bánh còn: <span th:text="${product.stockQuantity}" class="ms-1"></span>
+                        </div>
+                        <div class="info-chip-detail me-2" th:if="${product.ageRange}">
+                            <i class="fas fa-birthday-cake me-2"></i> <span th:text="${product.ageRange}" class="ms-1"></span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted mb-5 small lh-base" style="font-size: 0.95rem;" th:text="${product.description}">Mô tả ngắn về sản phẩm...</p>
+
+                    <div class="d-flex flex-wrap align-items-center gap-4 mb-5">
+                        <div class="qty-input-group">
+                            <button class="qty-btn-detail" onclick="changeQuantity(-1)">−</button>
+                            <span id="qtyDisplay">1</span>
+                            <button class="qty-btn-detail" onclick="changeQuantity(1)">+</button>
+                        </div>
+
+                        <button class="btn-add-to-cart" th:data-id="${product.id}" onclick="handleAddToCartDetail(this.getAttribute('data-id'))">
+                            <i class="fas fa-shopping-basket me-2"></i> ĐẶT BÁNH NGAY
+                        </button>
+                    </div>
+
+                    <div class="pt-4 border-top">
+                        <div class="d-flex gap-4 text-muted small fw-medium">
+                            <span><i class="fas fa-shipping-fast me-2 text-success"></i> Giao bánh hẹn giờ nội thành</span>
+                            <span><i class="fas fa-certificate me-2" style="color: #D4AF37;"></i> Nguyên liệu tươi sạch 100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="related-section" th:if="${not #lists.isEmpty(relatedProducts)}">
+        <div class="container">
+            <h4 class="font-playfair text-dark mb-4 text-center fs-3" style="font-style: normal;">Mẫu Bánh Cùng Loại</h4>
+            <div class="row g-4">
+                <div class="col-6 col-md-4 col-lg-3" th:each="p : ${relatedProducts}" th:if="${p.id != product.id}">
+                    <a th:href="@{/product/{id}(id=${p.id})}" class="text-decoration-none">
+                        <div class="card product-card-custom h-100 border-0 shadow-sm">
+                            <div class="product-img-wrap" style="height: 220px; background: #fff; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #F5F5F5;">
+                                <img th:src="${p.imageUrl ?: '/images/default.png'}" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div class="card-body text-center p-3">
+                                <h6 class="fw-bold text-truncate text-dark small mb-2" th:text="${p.name}">SP Liên Quan</h6>
+                                <div class="price-tag" style="color: var(--logo-red); font-weight: 700; font-size: 0.95rem;"
+                                     th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')} + 'đ'"></div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        let currentQty = 1;
+
+        // Sử dụng cú pháp comment an toàn của Thymeleaf dành riêng cho Javascript Inline
+        /*<![CDATA[*/
+        const maxStock = /*[[${product.stockQuantity}]]*/ 100;
+        /*]]>*/
+
+        function changeQuantity(delta) {
+            currentQty = Math.max(1, Math.min(maxStock, currentQty + delta));
+            const display = document.getElementById('qtyDisplay');
+            if (display) display.textContent = currentQty;
+        }
+
+        function handleAddToCartDetail(productId) {
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+
+            if (!csrfHeader || !csrfToken) {
+                showNotification("Lỗi hệ thống: Thiếu mã bảo mật CSRF!", "danger");
+                return;
+            }
+
+            fetch('/api/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    [csrfHeader.content]: csrfToken.content
+                },
+                body: `productId=${productId}&quantity=${currentQty}`
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const badge = document.querySelector('.badge-cart') || document.querySelector('.cart-badge');
+                        if (badge) {
+                            badge.textContent = data.cartCount;
+                            badge.classList.remove('d-none');
+                        }
+                        showNotification(`Đã thêm thành công ${currentQty} phần vào giỏ hàng!`, "success");
+                    } else {
+                        showNotification("Lỗi: " + data.message, "danger");
+                    }
+                })
+                .catch(err => {
+                    showNotification("Vui lòng đăng nhập để mua hàng!", "warning");
+                });
+        }
+
+        function showNotification(message, type) {
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'var(--logo-red)' : (type === 'danger' ? '#C53030' : '#B7791F');
+
+            toast.className = 'custom-toast p-3 text-white position-fixed shadow-lg';
+            toast.style.cssText = `
+                top:120px;
+                right:20px;
+                z-index:9999;
+                border-radius:0px;
+                background:${bgColor};
+                font-weight:600;
+                font-size:0.9rem;
+                min-width: 280px;
+                transition: all 0.5s ease;
+                transform: translateX(120%);
+                border: 1px solid rgba(255,255,255,0.2);
+            `;
+
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-3 fs-5"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => { toast.style.transform = 'translateX(0)'; }, 100);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(() => toast.remove(), 500);
+            }, 2500);
+        }
+    </script>
+</section>
+
+</body>
+</html>

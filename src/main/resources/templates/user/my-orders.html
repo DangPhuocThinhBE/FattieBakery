@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Đơn Hàng Của Tôi - Fattie Bakery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+    <style>
+        /* --- ĐỒNG BỘ BẢNG MÀU FATTIE BAKERY --- */
+        :root {
+            --logo-red: #8B3238;        /* Màu đỏ nâu từ logo */
+            --logo-red-dark: #6F282D;   /* Màu đỏ nâu đậm khi hover */
+            --bg-soft-cream: #FFFDF8;   /* Nền kem nhẹ ấm áp */
+            --text-main: #333333;
+            --text-muted: #666666;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-soft-cream);
+            color: var(--text-main);
+        }
+
+        /* Navbar thương hiệu */
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-style: italic;
+            color: var(--logo-red)!important;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+        }
+        .navbar {
+            background: #fff!important;
+            box-shadow: 0 2px 15px rgba(139, 50, 56, 0.08);
+            border-bottom: 1px solid #EEEEEE;
+        }
+
+        .font-playfair {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-style: italic;
+            color: var(--logo-red);
+        }
+
+        /* Chuyển hoàn toàn sang góc vuông vắn cổ điển, sang trọng */
+        .card {
+            border: 1px solid #EEEEEE;
+            border-radius: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            background: #fff;
+        }
+
+        /* Hệ thống nút bấm vuông vắn đồng bộ */
+        .btn-primary {
+            background: var(--logo-red);
+            border: none;
+            border-radius: 0;
+            font-weight: 700;
+            padding: 10px 20px;
+            color: white !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: var(--logo-red-dark);
+        }
+
+        .btn-outline-secondary {
+            border-radius: 0 !important;
+            border-color: #9E9E9E;
+            color: #616161;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 10px 20px;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #616161;
+            border-color: #616161;
+            color: #fff;
+        }
+
+        .btn-outline-custom-sm {
+            border-radius: 0 !important;
+            border-color: var(--logo-red);
+            color: var(--logo-red);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 6px 15px;
+            transition: all 0.2s;
+        }
+        .btn-outline-custom-sm:hover {
+            background-color: var(--logo-red);
+            color: #fff !important;
+        }
+
+        .price-tag {
+            color: var(--logo-red);
+            font-weight: 800;
+            font-size: 1.05rem;
+        }
+
+        /* Nhãn trạng thái thiết kế dạng tag vuông thanh lịch */
+        .status-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 0;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-pending { background: #FCFAF2; color: #B7791F; border: 1px solid #FEEBC8; }
+        .status-confirmed { background: #EBF8FF; color: #2B6CB0; border: 1px solid #BEE3F8; }
+        .status-shipping { background: #EBF4F6; color: #2C7A7B; border: 1px solid #C4E8EB; }
+        .status-delivered { background: #F0FFF4; color: #2F855A; border: 1px solid #C6F6D5; }
+        .status-cancelled { background: #FFF5F5; color: #C53030; border: 1px solid #FED7D7; }
+
+        .order-card-wrapper { transition: all 0.3s ease; }
+        .order-card-wrapper:hover { transform: translateY(-3px); }
+        .order-card-wrapper:hover .card { border-color: var(--logo-red); box-shadow: 0 4px 20px rgba(139, 50, 56, 0.05); }
+    </style>
+</head>
+<body>
+
+<!-- Thanh điều hướng đầu trang -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">🍰 Fattie Bakery</a>
+        <div class="ms-auto d-flex gap-2">
+            <a href="/shop" class="btn btn-primary"><i class="fas fa-store me-2"></i>Mua thêm bánh</a>
+            <a href="/logout" class="btn btn-outline-secondary">Đăng xuất</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5" style="min-height: 80vh;">
+    <h3 class="font-playfair display-6 mb-1">Đơn Hàng Của Tôi</h3>
+    <p class="text-muted small mb-4 text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Theo dõi hành trình những chiếc bánh thơm ngon</p>
+
+    <!-- TRƯỜNG HỢP GIỎ HÀNG TRỐNG -->
+    <div th:if="${#lists.isEmpty(orders)}" class="text-center py-5 bg-white border border-dashed shadow-sm">
+        <div style="font-size:4rem; color: var(--logo-red);" class="mb-2">📋</div>
+        <h5 class="fw-bold text-dark">Bạn chưa đặt đơn bánh nào</h5>
+        <p class="text-muted small">Hãy ghé qua tiệm để chọn những chiếc bánh ngọt ngào nhất nhé.</p>
+        <a href="/shop" class="btn btn-primary mt-2"><i class="fas fa-birthday-cake me-2"></i>Xem menu tiệm bánh</a>
+    </div>
+
+    <!-- DANH SÁCH ĐƠN HÀNG -->
+    <div class="row g-3" th:unless="${#lists.isEmpty(orders)}">
+        <div class="col-12 order-card-wrapper" th:each="order : ${orders}">
+            <div class="card p-2">
+                <div class="card-body">
+                    <div class="row align-items-center g-3">
+                        <!-- Mã đơn và ngày tháng -->
+                        <div class="col-6 col-md-3">
+                            <div class="small text-muted fw-semibold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Mã đơn hàng</div>
+                            <div class="fw-800 fs-5 text-dark" th:text="${order.orderCode}">FT123</div>
+                            <div class="small text-muted" style="font-size: 0.85rem;" th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</div>
+                        </div>
+
+                        <!-- Số lượng sản phẩm -->
+                        <div class="col-6 col-md-2">
+                            <div class="small text-muted fw-semibold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Số lượng</div>
+                            <div class="fw-700 text-dark" style="font-size: 0.95rem;" th:text="${#lists.size(order.orderItems)} + ' mẫu bánh'">1 mẫu bánh</div>
+                        </div>
+
+                        <!-- Tổng giá trị -->
+                        <div class="col-6 col-md-3">
+                            <div class="small text-muted fw-semibold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Tổng giá trị</div>
+                            <div class="price-tag" th:text="${#numbers.formatDecimal(order.finalAmount,0,'COMMA',0,'POINT')} + 'đ'">0đ</div>
+                        </div>
+
+                        <!-- Trạng thái đơn (ĐÃ ĐƯỢC FIX LỖI ĐÓNG NGOẶC ĐIỀU KIỆN) -->
+                        <div class="col-6 col-md-3 text-md-center">
+                            <span th:class="'status-badge ' + ${order.status.name() == 'PENDING' ? 'status-pending' :
+                                             (order.status.name() == 'CONFIRMED' ? 'status-confirmed' :
+                                             (order.status.name() == 'SHIPPING' ? 'status-shipping' :
+                                             (order.status.name() == 'DELIVERED' ? 'status-delivered' : 'status-cancelled')))}"
+                                  th:text="${order.statusLabel}">Chờ xác nhận</span>
+                        </div>
+
+                        <!-- Nút chi tiết -->
+                        <div class="col-12 col-md-1 text-end">
+                            <a th:href="@{/orders/{code}(code=${order.orderCode})}" class="btn btn-outline-custom-sm w-100 text-center">
+                                Chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

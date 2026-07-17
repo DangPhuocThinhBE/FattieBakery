@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, 'Chuyện Của Bé', ~{::extraStyles})}">
+<meta charset="UTF-8"/>
+<head>
+    <th:block th:fragment="extraStyles">
+        <style>
+            /* --- ĐỒNG BỘ PHONG CÁCH CỔ ĐIỂN FATTIE BAKERY --- */
+            :root {
+                --logo-red: #8B3238;        /* Màu đỏ nâu từ logo */
+                --logo-red-dark: #6F282D;   /* Màu đỏ nâu đậm khi hover */
+                --bg-soft-cream: #FFFDF8;   /* Nền kem nhẹ ấm áp */
+                --text-main: #333333;
+                --text-muted: #666666;
+                --border-tan: #EADCC9;
+            }
+
+            .story-container {
+                background: var(--bg-soft-cream);
+                font-family: 'Montserrat', sans-serif;
+                color: var(--text-main);
+            }
+
+            .font-playfair {
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+            }
+
+            /* Hộp tiêu đề vuông vắn mộc mạc */
+            .story-header {
+                background: #FAF6F0;
+                padding: 50px 20px;
+                border-radius: 0 !important;
+                margin-bottom: 40px;
+                border: 1px solid var(--border-tan);
+            }
+
+            /* Hình ảnh bài viết vuông vắn, có viền mộc */
+            .story-img {
+                border-radius: 0 !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+                border: 1px solid var(--border-tan);
+                padding: 6px;
+                background: #fff;
+            }
+
+            /* Đường gạch ngang cổ điển */
+            .classic-hr {
+                border-top: 1px dashed var(--border-tan);
+                opacity: 1;
+            }
+
+            /* Nút quay lại góc vuông tinh tế */
+            .btn-bakery-outline {
+                background: transparent;
+                border: 1px solid var(--logo-red);
+                border-radius: 0 !important;
+                padding: 10px 25px;
+                font-weight: 700;
+                color: var(--logo-red);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.85rem;
+                transition: 0.3s;
+            }
+            .btn-bakery-outline:hover {
+                background: var(--logo-red);
+                color: white;
+                box-shadow: 0 4px 12px rgba(139, 50, 56, 0.15);
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<section class="py-5 story-container">
+    <div class="container">
+        <a href="/" class="btn btn-bakery-outline mb-4">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại trang chủ
+        </a>
+
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+
+                <div class="story-header text-center shadow-sm">
+                    <h1 class="font-playfair mb-3" style="color: var(--logo-red); font-style: normal;">📖 Chuyện Của Bếp</h1>
+                    <p class="text-muted mb-0 small fw-medium">Nơi chia sẻ những công thức mộc mạc, những khoảnh khắc ấm áp bên tách trà và chiếc bánh ngọt.</p>
+                </div>
+
+                <hr class="classic-hr my-5">
+
+                <div class="text-start p-2">
+                    <h3 class="font-playfair text-dark mb-3">Hành trình Lò Bánh Fattie</h3>
+                    <p class="lh-lg" style="font-size: 0.95rem; color: #555;">
+                        Fattie Bakery ra đời từ tình yêu nguyên bản với mùi bơ thơm phức mỗi sớm mai và vị chát nhẹ ngọt hậu của những búp trà thanh khiết. Chúng tôi tin rằng mỗi chiếc bánh ra lò không chỉ là một món ăn, mà còn là gói trọn tâm tình, sự tỉ mỉ gửi gắm đến những buổi sum vầy ấm áp của bạn bên người thương yêu.
+                    </p>
+
+                    <img th:src="@{/images/story3detail.jpg}" class="img-fluid story-img my-4 w-100" alt="Story">
+
+                    <p class="lh-lg" style="font-size: 0.95rem; color: #555;">
+                        Hãy chậm lại một chút, chọn cho mình một chiếc bánh sừng bò ngập bơ hay một lát Tiramisu mềm mịn, rót thêm tách trà ấm và lắng nghe những câu chuyện nhỏ tại tiệm nhé!
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

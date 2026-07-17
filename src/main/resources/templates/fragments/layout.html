@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="main_layout(content,title,extraStyles)">
+<head>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' - Fattie Bakery'"></title>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+
+    <style>
+        :root {
+            --logo-red: #8B3238;
+            --logo-red-dark: #6F282D;
+            --bg-soft-cream: #FFFDF8;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-tan: #EADCC9;
+        }
+
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-soft-cream); color: var(--text-main); }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+
+        .navbar { background: rgba(255, 253, 248, 0.97) !important; border-bottom: 1px solid var(--border-tan); padding: 10px 0; }
+        .navbar-brand { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--logo-red) !important; font-size: 1.5rem; }
+        .nav-link { color: var(--text-main); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; margin: 0 12px; transition: 0.2s; }
+        .nav-link:hover { color: var(--logo-red); }
+
+        .search-group { background: #fff; border-radius: 0 !important; border: 1px solid var(--border-tan); }
+        .btn-search { background: var(--logo-red) !important; border-radius: 0 !important; color: white; }
+        .nav-icon-btn { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 0 !important; background: #fff; border: 1px solid var(--border-tan); color: var(--logo-red); position: relative; }
+        .cart-badge { background: var(--logo-red); color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; position: absolute; top: -5px; right: -5px; }
+
+        .btn-bakery-nav { background: var(--logo-red); color: white !important; border-radius: 0 !important; padding: 8px 20px; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; border: none; }
+
+        #site-footer-2026 { background: #FAF6F0 !important; border-top: 1px solid var(--border-tan); padding: 50px 0 25px; margin-top: 60px; }
+        #site-footer-2026 h4, #site-footer-2026 h6 { color: var(--logo-red); font-family: 'Playfair Display', serif; margin-bottom: 20px; }
+        #site-footer-2026 .footer-link { color: var(--text-muted) !important; text-decoration: none !important; font-size: 0.9rem; display: block; margin-bottom: 10px; }
+        #site-footer-2026 .social-icons a { width: 34px; height: 34px; background: #fff; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border-tan); color: var(--logo-red); margin-right: 8px; text-decoration: none; }
+        #site-footer-2026 .social-icons a:hover { background: var(--logo-red); color: #fff; }
+    </style>
+    <th:block th:insert="${extraStyles ?: ''}"></th:block>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <i class="fas fa-cookie-bite"></i>
+            <span class="font-playfair">Fattie Bakery</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Trang Chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="/shop">Cửa Hàng</a></li>
+            </ul>
+            <form class="d-flex me-lg-4" action="/search" method="get">
+                <div class="input-group search-group">
+                    <input class="form-control border-0" type="search" name="keyword" placeholder="Tìm bánh..."/>
+                    <button class="btn btn-search" type="submit"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+            <div class="d-flex align-items-center gap-3">
+                <a th:href="@{/cart}" class="nav-icon-btn text-decoration-none">
+                    <i class="fas fa-shopping-basket"></i>
+                    <span th:if="${cartCount > 0}" class="cart-badge" th:text="${cartCount}">0</span>
+                </a>
+                <div sec:authorize="isAuthenticated()" class="dropdown">
+                    <button class="btn border-0 dropdown-toggle" data-bs-toggle="dropdown">
+                        <span th:text="${user?.fullName ?: 'User'}">User</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/user/profile">Hồ sơ</a></li>
+                        <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" href="/admin/dashboard">Quản trị</a></li>
+                        <li><a class="dropdown-item text-danger" href="/logout">Đăng xuất</a></li>
+                    </ul>
+                </div>
+                <div sec:authorize="!isAuthenticated()">
+                    <a href="/login" class="btn btn-bakery-nav">Đăng Nhập</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main th:replace="${content}"></main>
+
+<footer id="site-footer-2026">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h4>Fattie Bakery</h4>
+                <p style="font-size: 0.9rem;">Tiệm bánh ngọt handmade và những tách trà ấm áp.</p>
+                <div class="social-icons mt-3">
+                    <a href="https://www.facebook.com/profile.php?id=100069516080443" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/fattiebakery.0199/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@jessietrg17" target="_blank"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h6>Góc Điều Hướng</h6>
+                <a href="/" class="footer-link">Trang chủ</a>
+                <a href="/shop" class="footer-link">Thực đơn tiệm</a>
+                <a href="/orders" class="footer-link">Đơn hàng</a>
+            </div>
+            <div class="col-md-4">
+                <h6>Thông tin liên hệ</h6>
+                <p class="text-muted small"><i class="fas fa-phone me-2"></i>0901 234 567</p>
+                <p class="text-muted small"><i class="fas fa-map-marker-alt me-2"></i>Thủ Đức, TP. HCM</p>
+            </div>
+        </div>
+        <hr class="my-4"/>
+        <p class="text-center text-muted small">© 2026 Fattie Bakery.</p>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

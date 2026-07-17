@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard - Fattie Bakery Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --logo-red: #8B3238;
+            --sidebar-bg: #221E1F;
+            --bg-cream: #FFFDF8;
+            --border-tan: #EADCC9;
+        }
+        body { font-family:'Montserrat',sans-serif; background:var(--bg-cream); }
+
+        /* SIDEBAR MỘC MẠC */
+        .sidebar { width:260px; min-height:100vh; background:var(--sidebar-bg); position:fixed; left:0; top:0; z-index:100; }
+        .sidebar-brand { font-family:'Playfair Display',serif; color:#EADCC9; font-size:1.4rem; padding:24px 20px; border-bottom:1px dashed #444; }
+        .sidebar-item { display:flex; align-items:center; padding:13px 20px; color:rgba(255,255,255,.6); text-decoration:none; font-weight:600; font-size:0.85rem; text-transform:uppercase; }
+        .sidebar-item:hover, .sidebar-item.active { color:#fff; background:rgba(139,50,56,.3); border-left:4px solid var(--logo-red); }
+
+        /* MAIN CONTENT */
+        .main-content { margin-left:260px; padding:24px; }
+        .topbar { background:#fff; border:1px solid var(--border-tan); padding:16px 24px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; }
+
+        /* CARD THỐNG KÊ PHẲNG */
+        .stat-card { border:1px solid var(--border-tan); border-radius:0; padding:20px; background:#fff; }
+        .stat-icon { color: var(--logo-red); font-size: 1.8rem; }
+
+        .btn-bakery { border-radius:0 !important; font-weight:700; text-transform:uppercase; }
+        .table thead { background: var(--logo-red); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-cookie-bite me-2"></i>Fattie Admin</div>
+    <div class="sidebar-menu">
+        <a href="/admin/dashboard" class="sidebar-item active"><i class="fas fa-chart-line"></i> Tổng quan lò bánh</a>
+        <a href="/admin/products" class="sidebar-item"><i class="fas fa-bread-slice"></i> Thực đơn bánh & trà</a>
+        <a href="/admin/categories" class="sidebar-item"><i class="fas fa-tags"></i> Danh mục</a>
+        <a href="/admin/orders" class="sidebar-item"><i class="fas fa-mug-hot"></i> Đơn đặt bàn</a>
+        <a href="/admin/users" class="sidebar-item"><i class="fas fa-users"></i> Khách hàng</a>
+        <hr style="border-color:#444; margin:12px 20px;"/>
+        <a href="/" class="sidebar-item"><i class="fas fa-store"></i> Xem tiệm</a>
+        <a href="/logout" class="sidebar-item text-danger"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="topbar">
+        <h5 class="mb-0 fw-bold font-playfair text-uppercase" style="color:var(--logo-red);">☕ Dashboard Tổng Quan</h5>
+        <span class="badge" style="background:var(--logo-red); font-size:.8rem;"><i class="fas fa-user me-1"></i><span sec:authentication="name">Admin</span></span>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <p class="text-muted small fw-bold mb-1">DOANH THU TỔNG</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="fw-bold mb-0" th:text="${#numbers.formatDecimal(stats.totalRevenue,0,'COMMA',0,'POINT')} + 'đ'">0đ</h4>
+                    <i class="fas fa-coins stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius:0;">
+        <div class="card-body">
+            <h6 class="fw-bold mb-3"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Cảnh báo nguyên liệu/sản phẩm sắp hết</h6>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead><tr><th>Tên bánh/trà</th><th>Số lượng tồn</th><th>Hành động</th></tr></thead>
+                    <tbody>
+                    <tr th:each="p : ${lowStockProducts}">
+                        <td th:text="${p.name}">Bánh Sừng Bò</td>
+                        <td><span class="badge bg-danger rounded-0" th:text="${p.stockQuantity}">0</span></td>
+                        <td><a href="#" class="btn btn-sm btn-outline-dark btn-bakery">Nhập thêm</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, 'Tìm Kiếm', ~{::extraStyles})}">
+<meta charset="UTF-8"/>
+<head>
+    <th:block th:fragment="extraStyles">
+        <style>
+            /* --- ĐỒNG BỘ PHONG CÁCH CỔ ĐIỂN FATTIE BAKERY --- */
+            :root {
+                --logo-red: #8B3238;        /* Màu đỏ nâu từ logo */
+                --logo-red-dark: #6F282D;   /* Màu đỏ nâu đậm khi hover */
+                --bg-soft-cream: #FFFDF8;   /* Nền kem nhẹ ấm áp */
+                --text-main: #333333;
+                --text-muted: #666666;
+                --border-tan: #EADCC9;
+            }
+
+            .search-container { background: var(--bg-soft-cream); font-family: 'Montserrat', sans-serif; }
+
+            /* Thiết kế Box vuông vắn, cứng cáp theo phong cách cổ điển */
+            .search-header {
+                background: #FAF6F0;
+                padding: 40px 0;
+                border-radius: 0 !important;
+                margin-bottom: 40px;
+                border: 1px solid var(--border-tan);
+            }
+
+            .font-playfair {
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+            }
+
+            .product-card {
+                border: 1px solid #EEEEEE !important;
+                border-radius: 0 !important;
+                overflow: hidden;
+                box-shadow: 0 4px 15px rgba(0,0,0,.02);
+                transition: all .3s;
+                height: 100%;
+                background: #fff;
+            }
+            .product-card:hover {
+                transform: translateY(-5px);
+                border-color: var(--logo-red) !important;
+                box-shadow: 0 6px 20px rgba(139, 50, 56, .08);
+            }
+
+            .product-img-wrap {
+                height: 220px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                overflow: hidden;
+                background: #fff;
+                border-bottom: 1px solid #F5F5F5;
+            }
+            .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+            .product-card:hover img { transform: scale(1.05); }
+
+            .price-tag { color: var(--logo-red); font-weight: 800; font-size: 1.05rem; }
+
+            /* Nút thêm giỏ hàng nhanh hình vuông tinh tế */
+            .cart-btn {
+                background: var(--logo-red);
+                color: #fff;
+                border: none;
+                border-radius: 0 !important;
+                width: 38px;
+                height: 38px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: 0.3s;
+            }
+            .cart-btn:hover { background: var(--logo-red-dark); }
+
+            /* Tag hết hàng góc vuông */
+            .badge-out-stock {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: #6c757d;
+                color: #fff;
+                padding: 4px 10px;
+                border-radius: 0 !important;
+                font-size: 11px;
+                font-weight: 700;
+                z-index: 2;
+                text-transform: uppercase;
+            }
+
+            /* Thanh phân trang góc vuông mộc mạc */
+            .pagination .page-link {
+                border-radius: 0 !important;
+                margin: 0 3px;
+                color: var(--text-main);
+                border: 1px solid var(--border-tan);
+                background: #fff;
+                font-weight: 600;
+            }
+            .pagination .page-item.active .page-link {
+                background: var(--logo-red) !important;
+                border-color: var(--logo-red) !important;
+                color: white !important;
+            }
+            .pagination .page-item.disabled .page-link {
+                background: #f8f9fa;
+                border-color: #eee;
+            }
+
+            .btn-bakery-back {
+                background: var(--logo-red);
+                border: none;
+                border-radius: 0 !important;
+                padding: 14px 35px;
+                font-weight: 700;
+                color: white;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.9rem;
+                transition: 0.3s;
+                box-shadow: 0 4px 10px rgba(139, 50, 56, 0.15);
+            }
+            .btn-bakery-back:hover {
+                background: var(--logo-red-dark);
+                color: white;
+                box-shadow: 0 6px 15px rgba(139, 50, 56, 0.25);
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+
+<section class="py-5 search-container">
+    <div class="container">
+
+        <div class="search-header text-center shadow-sm">
+            <div class="mb-3">
+                <img th:src="@{/images/logo.png}" alt="Fattie Bakery" style="height: 80px; object-fit: contain;">
+            </div>
+            <h2 class="font-playfair text-dark mb-2" style="font-style: normal;">🔍 Kết Quả Tìm Kiếm</h2>
+            <p class="text-muted mb-0 small fw-medium">
+                Tìm thấy <span class="fw-bold" style="color: var(--logo-red);" th:text="${products.totalElements}">0</span>
+                mẫu bánh phù hợp cho từ khóa "<span class="fw-bold text-dark" th:text="${keyword}"></span>"
+            </p>
+        </div>
+
+        <div th:if="${products.isEmpty()}" class="text-center py-5">
+            <div style="font-size:6rem;">🥐</div>
+            <h3 class="font-playfair text-dark mt-3 fs-3" style="font-style: normal;">Fattie chưa tìm thấy mẫu bánh này rồi!</h3>
+            <p class="text-muted small">Bạn thử tìm kiếm với các từ khóa mộc mạc như "croissant", "tiramisu", "bánh kem" xem sao nhé.</p>
+            <a href="/shop" class="btn btn-bakery-back mt-3">
+                Xem Tất Cả Mẫu Bánh
+            </a>
+        </div>
+
+        <div class="row g-4" th:unless="${products.isEmpty()}">
+            <div class="col-6 col-md-4 col-lg-3" th:each="product : ${products.content}">
+                <div class="card product-card">
+                    <div class="product-img-wrap">
+                        <a th:href="@{/product/{id}(id=${product.id})}">
+                            <img th:src="${product.imageUrl ?: '/images/default.png'}" th:alt="${product.name}"/>
+                        </a>
+                        <span th:if="${product.stockQuantity <= 0}" class="badge-out-stock">Hết hàng</span>
+                    </div>
+
+                    <div class="card-body p-3">
+                        <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 10px; letter-spacing: 0.5px;" th:text="${product.category?.name}">Danh mục</small>
+                        <h6 class="fw-bold text-dark mb-2 text-truncate small" th:text="${product.name}">Tên sản phẩm</h6>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="price-tag" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                            </div>
+
+                            <button class="cart-btn shadow-sm" th:data-id="${product.id}" onclick="addToCart(this.getAttribute('data-id'))" title="Thêm vào giỏ">
+                                <i class="fas fa-shopping-basket" style="font-size: 0.85rem;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="mt-5" th:if="${products.totalPages > 1}">
+            <ul class="pagination justify-content-center"
+                th:with="prevPage=${currentPage - 1}, nextPage=${currentPage + 1}, lastPage=${products.totalPages - 1}">
+
+                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/search(keyword=${keyword}, page=${prevPage})}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+
+                <li th:each="i : ${#numbers.sequence(0, lastPage)}"
+                    class="page-item" th:classappend="${i == currentPage ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/search(keyword=${keyword}, page=${i})}" th:text="${i+1}">1</a>
+                </li>
+
+                <li class="page-item" th:classappend="${currentPage == lastPage ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/search(keyword=${keyword}, page=${nextPage})}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <script th:inline="javascript">
+        function addToCart(productId) {
+            const headerEl = document.querySelector('meta[name="_csrf_header"]');
+            const tokenEl = document.querySelector('meta[name="_csrf"]');
+
+            if (!headerEl || !tokenEl) {
+                showNotification("Lỗi hệ thống: Thiếu mã bảo mật CSRF!", "danger");
+                return;
+            }
+
+            const header = headerEl.content;
+            const token = tokenEl.content;
+
+            fetch('/api/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    [header]: token
+                },
+                body: `productId=${productId}&quantity=1`
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const badge = document.querySelector('.cart-badge') || document.querySelector('.badge-cart');
+                        if (badge) {
+                            badge.textContent = data.cartCount;
+                            badge.classList.remove('d-none');
+                        }
+                        showNotification("Đã thêm mẫu bánh vào giỏ hàng thành công!", "success");
+                    } else {
+                        showNotification("Lỗi: " + data.message, "danger");
+                    }
+                })
+                .catch(err => {
+                    showNotification("Vui lòng đăng nhập để mua sắm tại lò bánh!", "warning");
+                });
+        }
+
+        function showNotification(message, type) {
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'var(--logo-red)' : (type === 'danger' ? '#C53030' : '#B7791F');
+
+            toast.className = 'custom-toast p-3 text-white position-fixed shadow-lg';
+            toast.style.cssText = `
+                top:120px;
+                right:20px;
+                z-index:9999;
+                border-radius:0px;
+                background:${bgColor};
+                font-weight:600;
+                font-size:0.9rem;
+                min-width: 280px;
+                transition: all 0.5s ease;
+                transform: translateX(120%);
+                border: 1px solid rgba(255,255,255,0.2);
+            `;
+
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-3 fs-5"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => { toast.style.transform = 'translateX(0)'; }, 100);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(() => toast.remove(), 500);
+            }, 2500);
+        }
+    </script>
+</section>
+
+</body>
+</html>

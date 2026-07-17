@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, 'Giới Thiệu - Fattie Bakery', ~{::extraStyles})}">
+<meta charset="UTF-8"/>
+<head>
+    <th:block th:fragment="extraStyles">
+        <style>
+            /* --- ĐỒNG BỘ MÀU ĐỎ NÂU TỪ LOGO FATTIE BAKERY --- */
+            :root {
+                --logo-red: #8B3238;      /* Màu đỏ nâu từ logo */
+                --logo-red-dark: #6F282D; /* Màu đỏ nâu đậm khi hover */
+                --text-main: #333333;
+                --text-muted: #666666;
+            }
+
+            .about-title {
+                font-weight: 900;
+                color: var(--logo-red);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .about-img {
+                border-radius: 0; /* Thiết kế vuông vắn cổ điển, sang trọng */
+                box-shadow: 0 15px 40px rgba(139, 50, 56, 0.15);
+                border: 10px solid white;
+            }
+
+            /* Chỉnh lại nút quay lại cho hợp tông màu tiệm bánh */
+            .btn-back {
+                color: var(--logo-red) !important;
+                border-color: var(--logo-red) !important;
+                border-radius: 5px !important;
+                font-weight: 600;
+                transition: all 0.3s;
+            }
+            .btn-back:hover {
+                background-color: var(--logo-red) !important;
+                color: white !important;
+            }
+
+            .custom-list li i {
+                color: var(--logo-red); /* Đổi màu icon check thành màu logo */
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<section class="py-5" style="background-color: #FFFDF8;"> <div class="container">
+    <a href="/" class="btn btn-outline-danger btn-back mb-5">
+        <i class="fas fa-arrow-left me-2"></i> Quay lại trang chủ
+    </a>
+
+    <div class="row align-items-center g-5">
+        <div class="col-md-6">
+            <p class="text-uppercase fw-bold mb-2" style="letter-spacing: 3px; color: #A1887F;">Bánh Uyên Làm - Quà Uyên Gói</p>
+            <h1 class="about-title mb-4">Về Fattie Bakery</h1>
+            <p class="lead text-muted">Chào mừng bạn đến với góc nhỏ ngọt ngào của Fattie Bakery – nơi những chiếc bánh handmade và những tách trà thơm được ra đời bằng cả trái tim.</p>
+            <p>Chúng tôi tự hào mang đến menu bánh tươi mới mỗi ngày, từ những chiếc bánh ngọt thanh, panna cotta mềm mịn, cookies giòn rụm cho đến những hộp quà "Ú Nu" chứa đựng trọn vẹn tình cảm. Fattie Bakery cam kết sử dụng nguyên liệu sạch, tự nhiên, ít ngọt, đảm bảo hương vị tinh tế và an toàn cho sức khỏe của bạn.</p>
+
+            <ul class="list-unstyled custom-list mt-4">
+                <li class="mb-3"><i class="fas fa-check-circle me-2"></i> <strong>Bánh tươi handmade:</strong> Làm mới mỗi ngày, không chất bảo quản.</li>
+                <li class="mb-3"><i class="fas fa-check-circle me-2"></i> <strong>Giao hàng nội thành:</strong> Sài Gòn - Dĩ An - Thủ Đức - Q12.</li>
+                <li class="mb-3"><i class="fas fa-check-circle me-2"></i> <strong>Quà tặng tinh tế:</strong> Hỗ trợ đóng gói tỉ mỉ, trọn vẹn yêu thương.</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <img th:src="@{/images/bakery_about_detail.jpg}" class="img-fluid about-img" alt="Giới thiệu Fattie Bakery">
+        </div>
+    </div>
+</div>
+</section>
+</body>
+</html>

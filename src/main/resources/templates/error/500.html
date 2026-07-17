@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, '500 - Lỗi hệ thống', ~{::style})}">
+<meta charset="UTF-8"/>
+<head>
+    <style>
+        /* --- STYLE CHO TRANG LỖI 500 PHONG CÁCH FATTIE BAKERY --- */
+        .error-code {
+            font-family: 'Playfair Display', serif;
+            font-size: 8rem;
+            font-weight: 900;
+            color: #8B3238 !important; /* Đỏ nâu thương hiệu */
+            margin-bottom: 20px;
+            text-shadow: 5px 5px 0px #EADCC9;
+        }
+        .error-container { padding: 100px 0; text-align: center; }
+
+        /* Hiệu ứng đung đưa nhẹ nhàng cho ấm trà nóng của bếp */
+        .tea-icon {
+            font-size: 5rem;
+            display: inline-block;
+            animation: swing 3s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+        @keyframes swing {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        /* ÉP CỨNG CLASS NÚT BẤM HIỂN THỊ CHỮ TRẮNG RÕ RÀNG */
+        .btn-bakery-fix {
+            background-color: #8B3238 !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 14px 35px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            display: inline-block;
+            text-decoration: none !important;
+            transition: 0.3s;
+        }
+        .btn-bakery-fix:hover {
+            background-color: #6F282D !important;
+            color: #FFFFFF !important;
+        }
+    </style>
+</head>
+<body>
+<section class="error-container container">
+    <div class="tea-icon">🫖</div>
+    <div class="error-code">500</div>
+    <h2 class="font-playfair text-dark mb-3" style="font-style: normal; font-weight: 700;">Hệ thống đang bận một chút!</h2>
+    <p class="text-muted fs-5 mb-4" style="font-size: 1.05rem;">Có vẻ như lò nướng của Fattie đang quá tải hoặc máy chủ gặp chút sự cố nhỏ. Bạn vui lòng thử tải lại trang nhé.</p>
+
+    <a href="javascript:location.reload()" class="btn btn-bakery-fix">
+        <i class="fas fa-sync-alt me-2"></i>Thử Tải Lại Trang
+    </a>
+</section>
+</body>
+</html>

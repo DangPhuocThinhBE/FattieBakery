@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: main_layout(~{::section}, 'Liên Hệ - Fattie Bakery', ~{::extraStyles})}">
+<meta charset="UTF-8"/>
+<head>
+    <th:block th:fragment="extraStyles">
+        <style>
+            /* --- ĐỒNG BỘ BẢNG MÀU FATTIE BAKERY --- */
+            :root {
+                --logo-red: #8B3238;        /* Màu đỏ nâu từ logo */
+                --logo-red-dark: #6F282D;   /* Màu đỏ nâu đậm khi hover */
+                --bg-soft-cream: #FFFDF8;   /* Nền kem nhẹ ấm áp */
+                --text-main: #333333;
+                --text-muted: #666666;
+            }
+
+            /* Chuyển sang phong cách bo góc vuông vắn cổ điển, sang trọng của tiệm */
+            .contact-info-card {
+                border-radius: 0 !important;
+                border: 1px solid #EEEEEE !important;
+                background: #fff;
+                transition: all 0.3s ease;
+            }
+            .contact-info-card:hover {
+                background: #FAF6F0 !important; /* Nền kem nhẹ khi hover */
+                transform: translateY(-3px);
+                border-color: var(--logo-red) !important;
+                box-shadow: 0 4px 15px rgba(139, 50, 56, 0.08) !important;
+            }
+
+            .btn-outline-custom {
+                border-radius: 0 !important;
+                border-color: #9E9E9E;
+                color: #616161;
+                font-weight: 600;
+                font-size: 0.9rem;
+            }
+            .btn-outline-custom:hover {
+                background-color: var(--logo-red);
+                border-color: var(--logo-red);
+                color: #fff;
+            }
+
+            .icon-box {
+                background: var(--logo-red) !important;
+                color: #fff !important;
+                border-radius: 0 !important; /* Vuông vắn đồng bộ card */
+                width: 50px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .font-playfair {
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+                font-style: italic;
+                color: var(--logo-red);
+            }
+            .font-montserrat {
+                font-family: 'Montserrat', sans-serif;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<section class="py-5 font-montserrat" style="background: var(--bg-soft-cream); min-height: 80vh;">
+    <div class="container">
+        <a href="/" class="btn btn-outline-custom mb-5 px-4 py-2 text-uppercase shadow-sm">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại trang chủ
+        </a>
+
+        <div class="row g-5 align-items-center">
+            <div class="col-md-6 col-lg-5">
+                <h1 class="font-playfair display-5 mb-2">Liên Hệ Với Fattie</h1>
+                <p class="text-muted small mb-4 text-uppercase fw-bold" style="letter-spacing: 1px;">🍰 BÁNH UYNs LÀM - QUÀ UYNs GÓI 🍒</p>
+
+                <div class="contact-info-card d-flex align-items-center p-3 mb-3 shadow-sm">
+                    <div class="icon-box me-3">
+                        <i class="fas fa-map-marker-alt fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1 fw-bold text-dark">Địa chỉ tiệm</h6>
+                        <p class="text-muted mb-0 small text-dark fw-medium">255/45 Quốc lộ 13 cũ, Hiệp Bình Phước, Thủ Đức, TP.HCM</p>
+                    </div>
+                </div>
+
+                <div class="contact-info-card d-flex align-items-center p-3 mb-3 shadow-sm">
+                    <div class="icon-box me-3">
+                        <i class="fas fa-phone-alt fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1 fw-bold text-dark">Hotline đặt bánh</h6>
+                        <p class="text-muted mb-0 small text-dark fw-medium">0903 492 258</p>
+                    </div>
+                </div>
+
+                <a href="https://www.instagram.com/fattiebakery.0199" target="_blank" class="text-decoration-none">
+                    <div class="contact-info-card d-flex align-items-center p-3 mb-3 shadow-sm">
+                        <div class="icon-box me-3">
+                            <i class="fab fa-instagram fa-xl"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bold text-dark">Instagram Tiệm</h6>
+                            <p class="mb-0 small text-danger fw-bold">@fattiebakery.0199</p>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="contact-info-card d-flex align-items-center p-3 mb-3 shadow-sm">
+                    <div class="icon-box me-3">
+                        <i class="fas fa-truck fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1 fw-bold text-dark">Khu vực ship bánh</h6>
+                        <p class="text-muted mb-0 small text-dark fw-medium">Nội thành Sài Gòn - Dĩ An - Thủ Đức - Quận 12</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-7">
+                <div class="p-2 bg-white border shadow-sm" style="border-radius: 0;">
+                    <img th:src="@{/images/story2detail.jpg}" class="img-fluid w-100" alt="Fattie Bakery Space" style="border-radius: 0; object-fit: cover; max-height: 480px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
