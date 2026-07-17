@@ -93,13 +93,14 @@
             }
         </style>
     </th:block>
+    <title></title>
 </head>
 <body>
 <section class="py-5" style="background: var(--bg-soft-cream); min-height: 85vh;">
     <div class="container">
         <div class="edit-card p-4 p-md-5 mx-auto" style="max-width: 550px;">
             <h3 class="font-playfair text-center mb-1 fs-2">Sửa Hồ Sơ Của Bạn</h3>
-            <p class="text-center text-muted small mb-4 text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Cập nhật thông tin nhận bánh hàng ngày</p>
+            <p class="text-center text-muted small mb-4 text-uppercase fw-semibold" style="letter-spacing: 1px;">Cập nhật thông tin nhận bánh hàng ngày</p>
 
             <form th:action="@{/user/profile/update}" th:object="${user}" method="post" enctype="multipart/form-data">
                 <input type="hidden" th:field="*{id}">
@@ -122,17 +123,23 @@
                 <!-- CÁC TRƯỜNG THÔNG TIN -->
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-dark">Họ và tên của bạn <span class="text-danger">*</span></label>
-                    <input type="text" th:field="*{fullName}" class="form-control" placeholder="Nhập họ và tên..." required>
+                    <label>
+                        <input type="text" th:field="*{fullName}" class="form-control" placeholder="Nhập họ và tên..." required>
+                    </label>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-dark">Số điện thoại liên hệ <span class="text-danger">*</span></label>
-                    <input type="tel" th:field="*{phone}" class="form-control" placeholder="Nhập số điện thoại nhận hàng..." required>
+                    <label>
+                        <input type="tel" th:field="*{phone}" class="form-control" placeholder="Nhập số điện thoại nhận hàng..." required>
+                    </label>
                 </div>
 
                 <div class="mb-4">
                     <label class="form-label fw-bold small text-dark">Địa chỉ giao bánh mặc định</label>
-                    <textarea th:field="*{address}" class="form-control" rows="3" placeholder="Số nhà, tên đường, phường/xã..."></textarea>
+                    <label>
+                        <textarea th:field="*{address}" class="form-control" rows="3" placeholder="Số nhà, tên đường, phường/xã..."></textarea>
+                    </label>
                 </div>
 
                 <!-- HỆ THỐNG NÚT ĐIỀU HƯỚNG -->
