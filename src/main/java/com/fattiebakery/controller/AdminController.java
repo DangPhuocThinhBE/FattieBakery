@@ -4,6 +4,8 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.fattiebakery.model.*;
 import com.fattiebakery.service.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -12,10 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
 import java.nio.file.*;
 import java.util.Map;
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin")
@@ -27,6 +27,8 @@ public class AdminController {
     @Autowired private OrderService orderService;
     @Autowired private DiscountCodeService discountCodeService;
 
+    @Setter
+    @Getter
     @Value("${app.upload.dir:uploads/images}")
     private String uploadDir;
 
@@ -86,39 +88,6 @@ public class AdminController {
 
     @Autowired
     private Cloudinary cloudinary;
-    /*
-    @PostMapping("/products/save")
-    public String saveProduct(@ModelAttribute Product product,
-                              @RequestParam(required = false) MultipartFile imageFile,
-                              @RequestParam(required = false) Long categoryId,
-                              RedirectAttributes ra) {
-        try {
-            if (categoryId != null) {
-                categoryService.getCategoryById(categoryId).ifPresent(product::setCategory);
-            }
-
-            if (imageFile != null && !imageFile.isEmpty()) {
-                String filename = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-                Path uploadPath = Paths.get(uploadDir);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
-                Files.copy(imageFile.getInputStream(), uploadPath.resolve(filename),
-                        StandardCopyOption.REPLACE_EXISTING);
-
-                // SỬA TẠI ĐÂY: Lưu tên file thôi, đường dẫn /uploads/ sẽ do HTML hoặc WebConfig lo
-                // Tránh việc lưu "//uploads//" gây lỗi Firewall bác nhé
-                product.setImageUrl(filename);
-            }
-
-            productService.saveProduct(product);
-            ra.addFlashAttribute("success", "Lưu sản phẩm thành công!");
-        } catch (Exception e) {
-            ra.addFlashAttribute("error", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/admin/products";
-    }
-    */
 
     @PostMapping("/products/save")
     public String saveProduct(@ModelAttribute Product product,
@@ -283,4 +252,5 @@ public class AdminController {
         model.addAttribute("totalUsers", userService.countActiveUsers());
         return "admin/statistics";
     }
+
 }

@@ -8,27 +8,17 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
     <style>
-        :root {
-            --logo-red: #8B3238;
-            --sidebar-bg: #221E1F;
-            --bg-cream: #FFFDF8;
-            --border-tan: #EADCC9;
-        }
+        :root { --logo-red: #8B3238; --sidebar-bg: #221E1F; --bg-cream: #FFFDF8; --border-tan: #EADCC9; }
         body { font-family:'Montserrat',sans-serif; background:var(--bg-cream); }
-
-        /* Sidebar phẳng, góc vuông */
         .sidebar { width: 260px; min-height: 100vh; background: var(--sidebar-bg); position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid rgba(234, 220, 201, 0.1); }
         .sidebar-brand { font-family:'Playfair Display',serif; color:#EADCC9; font-size:1.4rem; padding:24px 20px; border-bottom:1px dashed #444; }
         .sidebar-item { display:flex; align-items:center; padding:13px 20px; color:rgba(255,255,255,.6); text-decoration:none; font-weight:600; font-size:0.85rem; text-transform:uppercase; }
         .sidebar-item:hover, .sidebar-item.active { color:#fff; background:rgba(139,50,56,.3); border-left:4px solid var(--logo-red); }
-
         .main-content { margin-left:260px; padding:24px; }
         .topbar { background:#fff; border:1px solid var(--border-tan); padding:16px 24px; margin-bottom:24px; }
-        .card { border:1px solid var(--border-tan); border-radius:0 !important; background:#fff; box-shadow:none !important; }
-
+        .card { border:1px solid var(--border-tan); border-radius:0 !important; background:#fff; }
         .form-control, .form-select { border-radius:0 !important; border:1px solid var(--border-tan); }
         .btn-bakery { background:var(--logo-red); color:white; border-radius:0 !important; font-weight:700; text-transform:uppercase; }
-
         .table thead { background:var(--logo-red); color:white; }
         .code-badge { font-family:monospace; font-weight:800; padding:4px 12px; border:1px solid var(--logo-red); color:var(--logo-red); }
     </style>
@@ -48,16 +38,14 @@
 </div>
 
 <div class="main-content">
-    <div class="topbar"><h5 class="mb-0 fw-bold font-playfair text-uppercase" style="color:var(--logo-red);">🎫 ƯU ĐÃI TIỆC TRÀ</h5></div>
+    <div class="topbar"><h5 class="mb-0 fw-bold text-uppercase" style="color:var(--logo-red);">🎫 ƯU ĐÃI TIỆC TRÀ</h5></div>
 
     <div class="row g-4">
         <div class="col-md-4">
             <div class="card p-4">
                 <h6 class="fw-bold mb-3" id="formTitle"><i class="fas fa-plus-circle me-2" style="color:var(--logo-red);"></i>Thiết lập ưu đãi mới</h6>
                 <form th:action="@{/admin/discounts/save}" th:object="${discount}" method="post" id="discountForm">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <input type="hidden" th:field="*{id}" id="discountId"/>
-
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Mã Ưu Đãi</label>
                         <input type="text" class="form-control" th:field="*{code}" id="discountCode" required style="text-transform:uppercase;"/>
@@ -91,14 +79,16 @@
                             <td class="align-middle fw-bold" th:text="${d.discountType == 'PERCENTAGE' ? d.discountValue + '%' : d.discountValue + 'đ'}"></td>
                             <td class="align-middle small" th:text="${d.endDate != null ? #temporals.format(d.endDate, 'dd/MM/yyyy') : 'Vô thời hạn'}"></td>
                             <td class="align-middle">
-                                    <span th:class="${d.active ? 'badge bg-success rounded-0' : 'badge bg-secondary rounded-0'}"
-                                          th:text="${d.active ? 'Đang chạy' : 'Đã ẩn'}"></span>
+                                <span th:class="${d.active ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${d.active ? 'Đang chạy' : 'Đã ẩn'}"></span>
                             </td>
                             <td class="align-middle">
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-dark rounded-0"
-                                        th:data-discount="${#strings.escapeXml(#utils.toJson(d))}"
+                                <button type="button" class="btn btn-sm btn-outline-dark"
+                                        th:data-id="${d.id}"
+                                        th:data-code="${d.code}"
+                                        th:data-type="${d.discountType}"
+                                        th:data-value="${d.discountValue}"
                                         onclick="handleEdit(this)">
+                                    <i class="fas fa-edit"></i>
                                 </button>
                             </td>
                         </tr>
@@ -111,11 +101,12 @@
 </div>
 
 <script>
-    function editDiscount(discount) {
+    function handleEdit(btn) {
         document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit me-2" style="color:#8B3238;"></i>Chỉnh sửa mã';
-        document.getElementById('discountId').value = discount.id;
-        document.getElementById('discountCode').value = discount.code;
-        // ... (các trường khác)
+        document.getElementById('discountId').value = btn.getAttribute('data-id');
+        document.getElementById('discountCode').value = btn.getAttribute('data-code');
+        document.getElementById('discountType').value = btn.getAttribute('data-type');
+        document.getElementById('discountValue').value = btn.getAttribute('data-value');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>

@@ -151,6 +151,7 @@
             }
         </style>
     </th:block>
+    <title></title>
 </head>
 <body>
 
@@ -186,7 +187,9 @@
                                  th:data-price="${item.product.price}"
                                  th:data-qty="${item.quantity}">
 
-                                <input class="form-check-input cart-checkbox item-checkbox ms-1" type="checkbox" checked th:value="${item.id}">
+                                <label>
+                                    <input class="form-check-input cart-checkbox item-checkbox ms-1" type="checkbox" checked th:value="${item.id}">
+                                </label>
 
                                 <img th:src="${item.product.imageUrl ?: '/images/default_bakery.png'}" class="cart-item-img shadow-sm" th:alt="${item.product.name}"/>
 
@@ -220,7 +223,7 @@
                         <div class="card-cart promo-box mb-3">
                             <label class="fw-800 mb-2 small text-uppercase text-muted" style="letter-spacing: 1px;">Mã quà tặng / Giảm giá</label>
                             <div class="input-group">
-                                <input type="text" id="couponCode" class="form-control border-0 shadow-none rounded-0" placeholder="Nhập mã tại đây...">
+                                <label for="couponCode"></label><input type="text" id="couponCode" class="form-control border-0 shadow-none rounded-0" placeholder="Nhập mã tại đây...">
                                 <button class="btn btn-apply" type="button" onclick="applyCoupon()">Áp dụng</button>
                             </div>
                             <div id="couponMsg" class="small mt-2" style="display:none;"></div>
@@ -260,6 +263,11 @@
     <script th:inline="javascript">
         let appliedCouponCode = "";
 
+        // Hàm format tiền tệ (cần thiết để không bị lỗi gọi hàm)
+        function formatVND(amount) {
+            return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        }
+
         function updateSummary() {
             let total = 0;
             let countSelected = 0;
@@ -270,10 +278,8 @@
                 if (cb && cb.checked) {
                     const price = parseFloat(row.getAttribute('data-price'));
                     const qty   = parseInt(row.getAttribute('data-qty'));
-
                     total += price * qty;
                     countSelected += qty;
-
                     selectedIds.push(cb.value);
                 }
             });
@@ -299,22 +305,28 @@
         }
 
         function recalcDiscount(total) {
+            if (!appliedCouponCode) return;
+
             const header = document.querySelector('meta[name="_csrf_header"]').content;
             const token  = document.querySelector('meta[name="_csrf"]').content;
 
-            fetch(`/api/discount/apply?code=${appliedCouponCode}&orderAmount=${total}`, {
+            fetch("/api/discount/apply", {
                 method: 'POST',
-                headers: { [header]: token }
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({
+                    code: appliedCouponCode,
+                    orderAmount: total
+                })
             })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        const discount = data.discountAmount || 0;
-                        const final    = data.finalAmount || (total - discount);
-
-                        document.getElementById('grandTotal').textContent  = formatVND(final);
+                        document.getElementById('grandTotal').textContent  = formatVND(data.finalAmount);
                         document.getElementById('discountArea').style.setProperty('display', 'flex', 'important');
-                        document.getElementById('discountAmt').textContent = "-" + formatVND(discount);
+                        document.getElementById('discountAmt').textContent = "-" + formatVND(data.discountAmount);
                     } else {
                         appliedCouponCode = "";
                         document.getElementById('appliedCoupon').value = "";
@@ -325,25 +337,55 @@
                         const msg = document.getElementById('couponMsg');
                         msg.style.display = "block";
                         msg.className = "small mt-2 text-danger fw-bold text-center p-2 bg-light rounded";
-                        msg.innerHTML = `<i class="fas fa-info-circle"></i> Mã bị hủy do đơn hàng không đủ điều kiện`;
+                        msg.innerHTML = `<i class="fas fa-info-circle"></i> ${data.message}`;
                     }
-                })
-                .catch(() => {
-                    document.getElementById('grandTotal').textContent = formatVND(total);
+                });
+        }
+
+        function applyCoupon() {
+            let code = document.getElementById("couponCode").value.trim();
+            let total = parseFloat(document.getElementById("tempTotal").textContent.replace(/[^\d]/g, ""));
+
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+            const token = document.querySelector('meta[name="_csrf"]').content;
+
+            fetch("/api/discount/apply", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    [header]: token
+                },
+                body: JSON.stringify({ code: code, orderAmount: total })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const msg = document.getElementById("couponMsg");
+                    msg.style.display = "block";
+                    if (data.success) {
+                        appliedCouponCode = code;
+                        document.getElementById("appliedCoupon").value = code;
+                        document.getElementById("discountArea").style.setProperty('display', 'flex', 'important');
+                        document.getElementById("discountAmt").textContent = "-" + formatVND(data.discountAmount);
+                        document.getElementById("grandTotal").textContent = formatVND(data.finalAmount);
+                        msg.className = "small mt-2 text-success fw-bold";
+                        msg.textContent = data.message;
+                    } else {
+                        msg.className = "small mt-2 text-danger fw-bold";
+                        msg.textContent = data.message;
+                    }
                 });
         }
 
         function changeQty(id, delta) {
+            // (Giữ nguyên logic cũ của bạn ở đây...)
             const span = document.getElementById('qty-' + id);
             const row  = document.getElementById('item-row-' + id);
             let newQty = parseInt(span.textContent) + delta;
             if (newQty < 1) return;
-
             span.textContent = newQty;
             row.setAttribute('data-qty', newQty);
             const price = parseFloat(row.getAttribute('data-price'));
             document.getElementById('sub-' + id).textContent = formatVND(price * newQty);
-
             updateSummary();
 
             const header = document.querySelector('meta[name="_csrf_header"]').content;
@@ -354,77 +396,8 @@
                 body: `itemId=${id}&quantity=${newQty}`
             });
         }
-
-        function applyCoupon() {
-            const code  = document.getElementById('couponCode').value.trim();
-            const total = parseFloat(
-                document.getElementById('tempTotal').textContent.replace(/[^0-9]/g, '')
-            );
-            if (!code) return;
-
-            const header = document.querySelector('meta[name="_csrf_header"]').content;
-            const token  = document.querySelector('meta[name="_csrf"]').content;
-
-            fetch(`/api/discount/apply?code=${code}&orderAmount=${total}`, {
-                method: 'POST',
-                headers: { [header]: token }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    const msg = document.getElementById('couponMsg');
-                    if (data.success) {
-                        appliedCouponCode = code;
-                        document.getElementById('appliedCoupon').value = code;
-
-                        const discount = data.discountAmount || 0;
-                        const final    = data.finalAmount || (total - discount);
-
-                        document.getElementById('grandTotal').textContent  = formatVND(final);
-                        document.getElementById('discountArea').style.setProperty('display', 'flex', 'important');
-                        document.getElementById('discountAmt').textContent = "-" + formatVND(discount);
-
-                        msg.style.display = "block";
-                        msg.className = "small mt-2 text-success fw-bold";
-                        msg.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message || 'Áp dụng thành công!'}`;
-                    } else {
-                        alert(data.message || 'Mã không hợp lệ!');
-                    }
-                });
-        }
-
-        function removeItem(id) {
-            if (!confirm('Bạn muốn bỏ sản phẩm này khỏi giỏ hàng?')) return;
-
-            const header = document.querySelector('meta[name="_csrf_header"]').content;
-            const token  = document.querySelector('meta[name="_csrf"]').content;
-
-            fetch('/api/cart/remove', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded', [header]: token },
-                body: `itemId=${id}`
-            }).then(res => res.json()).then(data => {
-                if(data.success) {
-                    document.getElementById('item-row-' + id).remove();
-                    updateSummary();
-                    showNotification("Đã xóa sản phẩm!", "success");
-                }
-            });
-        }
-
-        function formatVND(n) { return Math.round(n).toLocaleString('vi-VN') + 'đ'; }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.body.addEventListener('change', e => {
-                if (e.target.classList.contains('item-checkbox') || e.target.id === 'selectAll') {
-                    if (e.target.id === 'selectAll') {
-                        document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = e.target.checked);
-                    }
-                    updateSummary();
-                }
-            });
-            updateSummary();
-        });
     </script>
 </section>
+
 </body>
 </html>
