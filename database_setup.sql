@@ -13,24 +13,183 @@ TRUNCATE TABLE discount_codes;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 3. Thêm Danh mục (Categories) mới
-INSERT INTO categories (name, description, active) VALUES
-                                                       ('Bánh Kem', 'Bánh kem tươi, bánh sinh nhật decor theo yêu cầu', TRUE),
-                                                       ('Bánh Ngọt', 'Bánh ngọt ăn kèm trà, các loại muffin, cookie', TRUE),
-                                                       ('Trà Thảo Mộc', 'Trà hoa, trà trái cây thanh mát', TRUE),
-                                                       ('Trà Sữa', 'Trà sữa đậm vị, trân châu nhà làm', TRUE),
-                                                       ('Combo Tea-Break', 'Set trà và bánh cho các buổi chiều', TRUE);
+INSERT INTO categories
+(
+    name,
+    description,
+    image_url,
+    active
+)
+VALUES
+    (
+        'Bánh Kem',
+        'Bánh kem tươi, bánh sinh nhật decor theo yêu cầu',
+        '/images/categories/banhkem.jpg',
+        TRUE
+    ),
+    (
+        'Bánh Ngọt',
+        'Bánh ngọt ăn kèm trà, muffin, cookie',
+        '/images/categories/banhngot.jpg',
+        TRUE
+    ),
+    (
+        'Trà Thảo Mộc',
+        'Trà hoa, trà trái cây thanh mát',
+        '/images/categories/trathaomoc.jpg',
+        TRUE
+    ),
+    (
+        'Trà Sữa',
+        'Trà sữa đậm vị, trân châu nhà làm',
+        '/images/categories/trasua.jpg',
+        TRUE
+    ),
+    (
+        'Combo Tea-Break',
+        'Set trà và bánh cho buổi chiều',
+        '/images/categories/combo.jpg',
+        TRUE
+    );
 
 -- 4. Thêm Sản phẩm (Products) mới - Cấu trúc tương thích hoàn toàn
-INSERT INTO products (name, description, price, original_price, stock_quantity, category_id, size, age_range, featured, sold_count) VALUES
-                                                                                                                                        ('Bánh Kem Dâu Tây', 'Cốt bánh bông lan mềm mịn, dâu tươi Đà Lạt', 350000, 420000, 10, 1, '16cm', 'Mọi lứa tuổi', TRUE, 45),
-                                                                                                                                        ('Bánh Kem Socola', 'Socola đen nguyên chất 70%, vị đắng dịu ngọt', 380000, 450000, 8, 1, '16cm', 'Mọi lứa tuổi', TRUE, 30),
-                                                                                                                                        ('Cookie Bơ Sữa', 'Bánh quy bơ thơm lừng, giòn tan', 45000, 60000, 100, 2, 'Gói 200g', 'Mọi lứa tuổi', FALSE, 200),
-                                                                                                                                        ('Muffin Việt Quất', 'Bánh muffin ẩm mịn với mứt việt quất tươi', 35000, 45000, 50, 2, 'Size M', 'Mọi lứa tuổi', TRUE, 150),
-                                                                                                                                        ('Trà Hoa Cúc Mật Ong', 'Thư giãn với trà hoa cúc và mật ong rừng', 45000, 55000, 200, 3, 'Ly 500ml', 'Người lớn', FALSE, 300),
-                                                                                                                                        ('Trà Đào Cam Sả', 'Trà đào thanh mát với hương sả thơm dịu', 50000, 65000, 150, 3, 'Ly 500ml', 'Người lớn', TRUE, 400),
-                                                                                                                                        ('Trà Sữa Truyền Thống', 'Trà sữa đậm vị, trân châu hoàng kim', 40000, 50000, 200, 4, 'Ly 500ml', 'Người lớn', TRUE, 500),
-                                                                                                                                        ('Set Trà Chiều Fattie', 'Combo gồm 1 trà hoa và 2 bánh ngọt nhỏ', 95000, 120000, 30, 5, 'Set', 'Người lớn', TRUE, 85);
-
+INSERT INTO products
+(
+    active,
+    age_range,
+    color,
+    description,
+    featured,
+    image_url,
+    name,
+    original_price,
+    price,
+    size,
+    sold_count,
+    stock_quantity,
+    category_id
+)
+VALUES
+    (
+        TRUE,
+        'Mọi lứa tuổi',
+        NULL,
+        'Cốt bánh bông lan mềm mịn, phủ kem tươi và dâu Đà Lạt.',
+        TRUE,
+        '/images/products/banhkem-dautay.jpg',
+        'Bánh Kem Dâu Tây',
+        420000,
+        350000,
+        '16cm',
+        45,
+        10,
+        1
+    ),
+    (
+        TRUE,
+        'Mọi lứa tuổi',
+        NULL,
+        'Bánh kem socola nguyên chất 70%, vị đậm đà.',
+        TRUE,
+        '/images/products/banhkem-socola.jpg',
+        'Bánh Kem Socola',
+        450000,
+        380000,
+        '16cm',
+        30,
+        8,
+        1
+    ),
+    (
+        TRUE,
+        'Mọi lứa tuổi',
+        NULL,
+        'Cookie bơ sữa thơm béo, giòn tan.',
+        FALSE,
+        '/images/products/cookie-bosua.jpg',
+        'Cookie Bơ Sữa',
+        60000,
+        45000,
+        'Gói 200g',
+        200,
+        100,
+        2
+    ),
+    (
+        TRUE,
+        'Mọi lứa tuổi',
+        NULL,
+        'Muffin mềm ẩm với nhân việt quất.',
+        TRUE,
+        '/images/products/muffin-vietquat.jpg',
+        'Muffin Việt Quất',
+        45000,
+        35000,
+        'Size M',
+        150,
+        50,
+        2
+    ),
+    (
+        TRUE,
+        'Người lớn',
+        NULL,
+        'Trà hoa cúc kết hợp mật ong rừng.',
+        FALSE,
+        '/images/products/tra-hoacuc-matong.jpg',
+        'Trà Hoa Cúc Mật Ong',
+        55000,
+        45000,
+        'Ly 500ml',
+        300,
+        200,
+        3
+    ),
+    (
+        TRUE,
+        'Người lớn',
+        NULL,
+        'Trà đào cam sả thanh mát.',
+        TRUE,
+        '/images/products/tra-dao-camsa.jpg',
+        'Trà Đào Cam Sả',
+        65000,
+        50000,
+        'Ly 500ml',
+        400,
+        150,
+        3
+    ),
+    (
+        TRUE,
+        'Người lớn',
+        NULL,
+        'Trà sữa truyền thống cùng trân châu hoàng kim.',
+        TRUE,
+        '/images/products/trasua-truyenthong.jpg',
+        'Trà Sữa Truyền Thống',
+        50000,
+        40000,
+        'Ly 500ml',
+        500,
+        200,
+        4
+    ),
+    (
+        TRUE,
+        'Người lớn',
+        NULL,
+        'Combo trà chiều gồm trà và bánh ngọt.',
+        TRUE,
+        '/images/products/combo-teabreak.jpg',
+        'Set Trà Chiều Fattie',
+        120000,
+        95000,
+        'Set',
+        85,
+        30,
+        5
+    );
 -- 5. Mã giảm giá (Discount Codes)
 INSERT INTO discount_codes (code, discount_type, discount_value, minimum_order_amount, max_usage_count, start_date, end_date, active) VALUES
                                                                                                                                           ('FATTIE10', 'PERCENTAGE', 10, 200000, 100, '2026-01-01', '2026-12-31', TRUE),

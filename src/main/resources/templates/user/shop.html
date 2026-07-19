@@ -1,71 +1,147 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
       th:replace="~{fragments/layout :: main_layout(~{::section}, 'Cửa Hàng', ~{::extraStyles})}">
-<meta charset="UTF-8"/>
 <head>
+    <meta charset="UTF-8"/>
     <th:block th:fragment="extraStyles">
         <style>
-            /* Định nghĩa biến CSS để IDE không báo lỗi */
-            :root {
-                --primary: #8B3238;
-                --primary-dark: #6a252a;
+            :root{
+                --primary:#8B3238;
+                --primary-dark:#6a252a;
             }
 
-            .category-chip {
-                border-radius:50px; padding:8px 20px; font-weight:700;
-                border:2px solid #fff0f5; background:#fff; cursor:pointer;
-                transition:.2s; display: inline-block;
+            .category-chip{
+                border-radius:50px;
+                padding:8px 20px;
+                font-weight:700;
+                border:2px solid #fff0f5;
+                background:#fff;
+                text-decoration:none;
+                color:#333;
+                transition:.25s;
             }
-            .category-chip:hover, .category-chip.active {
-                background:var(--primary); color:#fff!important; border-color:var(--primary);
+
+            .category-chip:hover,
+            .category-chip.active{
+                background:var(--primary);
+                color:#fff!important;
+                border-color:var(--primary);
             }
-            .product-card { border:none; border-radius:20px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.08); transition:all .3s; height:100%; }
-            .product-card:hover { transform:translateY(-8px); box-shadow:0 12px 35px rgba(255,107,157,.25); }
-            .product-img-wrap { position:relative; overflow:hidden; background:#fff0f5; height:230px; display:flex; align-items:center; justify-content:center; }
-            .product-img-wrap img { width:100%; height:100%; object-fit:cover; transition: 0.5s; }
-            .product-card:hover img { transform: scale(1.1); }
-            .price-tag { color:var(--primary); font-weight:800; font-size:1.15rem; }
-            .cart-btn {
-                background:var(--primary); color:#fff; border:none; border-radius:50%;
-                width:38px; height:38px; display:flex; align-items:center;
-                justify-content:center; transition: 0.3s;
+
+            .product-card{
+                border:none;
+                border-radius:20px;
+                overflow:hidden;
+                box-shadow:0 5px 18px rgba(0,0,0,.08);
+                transition:.3s;
+                height:100%;
             }
-            .cart-btn:hover { background:var(--primary-dark); }
+
+            .product-card:hover{
+                transform:translateY(-8px);
+                box-shadow:0 10px 30px rgba(0,0,0,.12);
+            }
+
+            .product-img-wrap{
+                height:240px;
+                overflow:hidden;
+                background:#fafafa;
+            }
+
+            .product-img-wrap img{
+                width:100%;
+                height:100%;
+                object-fit:cover;
+                transition:.35s;
+            }
+
+            .product-card:hover img{
+                transform:scale(1.08);
+            }
+
+            .price-tag{
+                color:var(--primary);
+                font-weight:700;
+                font-size:1.1rem;
+            }
+
+            .cart-btn{
+                width:40px;
+                height:40px;
+                border-radius:50%;
+                border:none;
+                background:var(--primary);
+                color:white;
+            }
+
+            .cart-btn:hover{
+                background:var(--primary-dark);
+            }
         </style>
     </th:block>
 </head>
 <body>
 <section class="container py-5">
-    <!-- Header shop -->
-    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
-        <h2 class="fw-bold">🛍️ Khám Phá Cửa Hàng</h2>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap">
+        <h2 class="fw-bold">
+            🛍️ Khám Phá Cửa Hàng
+        </h2>
         <div class="d-flex flex-wrap gap-2">
-            <a href="/shop" class="category-chip text-decoration-none">Tất cả</a>
+            <a th:href="@{/shop}"
+               class="category-chip"
+               th:classappend="${selectedCategory == null}? ' active'">
+                Tất cả
+            </a>
+
+            <a th:each="cat : ${categories}"
+               th:href="@{/shop(category=${cat.id})}"
+               th:text="${cat.name}"
+               class="category-chip"
+               th:classappend="${selectedCategory != null and selectedCategory.id == cat.id}? ' active'">
+            </a>
         </div>
     </div>
 
-    <!-- KIỂM TRA DỮ LIỆU: Sử dụng ${products} trực tiếp -->
-    <div th:if="${products == null or #lists.isEmpty(products)}" class="text-center py-5">
-        <div style="font-size:5rem;">🔍</div>
-        <h4 class="mt-3 text-muted">Rất tiếc bạn ơi, hiện chưa có món bánh nào!</h4>
+    <!-- Không có sản phẩm -->
+
+    <div class="text-center py-5"
+         th:if="${products == null or products.content.empty}">
+
+        <div style="font-size:70px;">🔍</div>
+
+        <h4 class="text-muted mt-3">
+            Chưa có sản phẩm.
+        </h4>
+
     </div>
 
-    <div class="row g-4" th:if="${products != null and !#lists.isEmpty(products)}">
-        <div class="col-6 col-md-4 col-lg-3" th:each="product : ${products}">
+    <!-- Danh sách sản phẩm -->
+
+    <div class="row g-4"
+         th:if="${products != null and !products.content.empty}">
+        <div class="col-lg-3 col-md-4 col-sm-6"
+             th:each="product : ${products.content}">
             <div class="card product-card">
                 <a th:href="@{/product/{id}(id=${product.id})}">
                     <div class="product-img-wrap">
-                        <img th:src="${product.imageUrl}" th:alt="${product.name}"/>
+                        <img th:src="${product.imageUrl}"
+                             th:alt="${product.name}">
                     </div>
                 </a>
-                <div class="card-body p-3">
-                    <h6 class="fw-700 text-truncate" th:text="${product.name}">Tên sản phẩm</h6>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <span class="price-tag" th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + 'đ'"></span>
-                        <button class="cart-btn" th:onclick="'addToCart(' + ${product.id} + ')'">
-                            <i class="fas fa-cart-plus"></i>
-                        </button>
-                    </div>
+                <div class="card-body">
+                    <h5 class="fw-bold"
+                        th:text="${product.name}">
+                    </h5>
+                    <p class="price-tag"
+                       th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + 'đ'">
+                    </p>
+                    <button class="btn btn-danger w-100"
+                            th:onclick="|addToCart(${product.id})|">
+                        <i class="fas fa-cart-plus me-2"></i>
+                        Thêm vào giỏ
+                    </button>
                 </div>
             </div>
         </div>
