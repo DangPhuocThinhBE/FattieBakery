@@ -1,6 +1,7 @@
 package com.fattiebakery.controller;
 
 // IMPORT ĐÚNG CỦA SPRING (Bác thay thế dòng ch.qos.logback bằng dòng này)
+import com.fattiebakery.service.OrderService;
 import org.springframework.ui.Model;
 
 import com.fattiebakery.model.Category;
@@ -10,23 +11,25 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller // Bác nhớ thêm Annotation này để Spring nhận diện nhé
+@Controller
 public class CategoryController {
 
     @Autowired
-    private CategoryService categoryService; // Phải khai báo biến này thì mới gọi được hàm bên dưới
+    private OrderService orderService;
 
-    @GetMapping("/admin/categories")
+    @Autowired
+    private CategoryService categoryService;
+
+    // Thêm phương thức này vào AdminController.java
+    @GetMapping("/categories")
     public String listCategories(Model model, @RequestParam(value = "editId", required = false) Long editId) {
-        // Bây giờ model.addAttribute sẽ hoạt động đúng
+        // Đã có sẵn orderService và categoryService được inject qua Constructor
+        model.addAttribute("stats", orderService.getDashboardStats());
         model.addAttribute("categories", categoryService.getAllCategories());
 
         if (editId != null) {
-            // Nếu có editId, lấy danh mục đó để điền vào Form
-            Category category = categoryService.getCategoryById(editId).orElse(null);
-            model.addAttribute("category", category);
+            model.addAttribute("category", categoryService.getCategoryById(editId).orElse(new Category()));
         } else {
-            // Nếu không có, tạo một đối tượng trống để Thêm mới
             model.addAttribute("category", new Category());
         }
         return "admin/categories";

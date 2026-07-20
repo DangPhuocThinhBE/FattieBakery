@@ -14,12 +14,11 @@
             --bg-cream: #FFFDF8;
             --border-tan: #EADCC9;
         }
-        body { font-family:'Montserrat',sans-serif; background:var(--bg-cream); }
+        body { font-family:'Montserrat', sans-serif; background:var(--bg-cream); }
         .font-playfair { font-family: 'Playfair Display', serif; }
 
-        /* Sidebar phẳng, góc vuông */
         .sidebar { width: 260px; min-height: 100vh; background: var(--sidebar-bg); position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid rgba(234, 220, 201, 0.1); }
-        .sidebar-brand { font-family:'Playfair Display',serif; color:#EADCC9; font-size:1.4rem; padding:24px 20px; border-bottom:1px dashed #444; }
+        .sidebar-brand { font-family:'Playfair Display', serif; color:#EADCC9; font-size:1.4rem; padding:24px 20px; border-bottom:1px dashed #444; }
         .sidebar-item { display:flex; align-items:center; padding:13px 20px; color:rgba(255,255,255,.6); text-decoration:none; font-weight:600; font-size:0.85rem; text-transform:uppercase; }
         .sidebar-item:hover, .sidebar-item.active { color:#fff; background:rgba(139,50,56,.3); border-left:4px solid var(--logo-red); }
 
@@ -29,7 +28,6 @@
         .card { border: 1px solid var(--border-tan) !important; border-radius: 0 !important; background: #fff; box-shadow: none !important; }
         .btn-bakery { background: var(--logo-red); color: white; border-radius: 0 !important; font-weight: 700; text-transform: uppercase; }
 
-        /* Table Mộc */
         .table thead th { background: var(--logo-red); color: white; border: none; font-size: 0.8rem; text-transform: uppercase; }
         .product-img-sm { width: 50px; height: 50px; object-fit: cover; border: 1px solid var(--border-tan); }
         .badge-active { background: #e8f5e9; color: #2e7d32; border-radius: 0; font-size: 0.7rem; text-transform: uppercase; }
@@ -53,6 +51,7 @@
         <a href="/admin/products/new" class="btn btn-bakery px-3"><i class="fas fa-plus me-2"></i>Món mới</a>
     </div>
 
+    <!-- Khu vực bộ lọc -->
     <div class="card mb-4 p-3">
         <form method="get" action="/admin/products" class="row g-3 align-items-end">
             <div class="col-md-5">
@@ -63,7 +62,12 @@
                 <label class="small fw-bold">DANH MỤC</label>
                 <select class="form-select" name="categoryId">
                     <option value="">Tất cả</option>
-                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                    <!-- Duyệt qua danh sách categories từ Model -->
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.id}"
+                            th:text="${cat.name}"
+                            th:selected="${cat.id == searchCategory}">
+                    </option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -72,22 +76,37 @@
         </form>
     </div>
 
+    <!-- Bảng sản phẩm -->
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
-                <tr><th>Ảnh</th><th>Tên Món</th><th>Giá</th><th>Tồn Lò</th><th>Trạng thái</th><th>Thao tác</th></tr>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tên Món</th>
+                    <th>Giá</th>
+                    <th>Tồn Lò</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
                 </thead>
                 <tbody>
                 <tr th:each="p : ${products.content}">
                     <td class="align-middle"><img th:src="${p.imageUrl}" class="product-img-sm"/></td>
-                    <td class="align-middle fw-bold" th:text="${p.name}">Bánh Sừng Bò</td>
-                    <td class="align-middle" th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')} + 'đ'">...</td>
-                    <td class="align-middle" th:text="${p.stockQuantity}">10</td>
-                    <td class="align-middle"><span th:class="${p.active ? 'badge badge-active' : 'badge badge-inactive'}" th:text="${p.active ? 'Sẵn sàng' : 'Hết món'}"></span></td>
+                    <td class="align-middle fw-bold" th:text="${p.name}">Tên sản phẩm</td>
+                    <td class="align-middle" th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')} + 'đ'">0đ</td>
+                    <td class="align-middle" th:text="${p.stockQuantity}">0</td>
+                    <td class="align-middle">
+                            <span th:class="${p.active ? 'badge badge-active' : 'badge badge-inactive'}"
+                                  th:text="${p.active ? 'Sẵn sàng' : 'Hết món'}"></span>
+                    </td>
                     <td class="align-middle">
                         <a th:href="@{/admin/products/edit/{id}(id=${p.id})}" class="btn btn-sm btn-outline-dark rounded-0"><i class="fas fa-edit"></i></a>
                     </td>
+                </tr>
+                <!-- Thông báo khi không có dữ liệu -->
+                <tr th:if="${products.content.isEmpty()}">
+                    <td colspan="6" class="text-center py-4">Không tìm thấy sản phẩm nào.</td>
                 </tr>
                 </tbody>
             </table>

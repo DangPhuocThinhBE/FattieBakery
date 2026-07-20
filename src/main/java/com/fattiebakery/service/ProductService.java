@@ -16,67 +16,38 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    // ====== USER FUNCTIONS ======
-
-    public List<Product> getNewestProducts() {
-        return productRepository.findTop8ByActiveTrueOrderByCreatedAtDesc();
-    }
-
-    public List<Product> getBestSellingProducts() {
-        return productRepository.findTop8ByActiveTrueOrderBySoldCountDesc();
-    }
-
-    public List<Product> getFeaturedProducts() {
-        return productRepository.findByFeaturedTrueAndActiveTrue();
-    }
-
+    // --- Các hàm cũ của bạn ---
+    public List<Product> getNewestProducts() { return productRepository.findTop8ByActiveTrueOrderByCreatedAtDesc(); }
+    public List<Product> getBestSellingProducts() { return productRepository.findTop8ByActiveTrueOrderBySoldCountDesc(); }
+    public List<Product> getFeaturedProducts() { return productRepository.findByFeaturedTrueAndActiveTrue(); }
     public Page<Product> searchProducts(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return productRepository.findByNameContainingIgnoreCaseAndActiveTrue(keyword, pageable);
+        return productRepository.findByNameContainingIgnoreCaseAndActiveTrue(keyword != null ? keyword : "", pageable);
     }
-
     public Page<Product> getProductsByCategory(Long categoryId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return productRepository.findByCategoryIdAndActiveTrue(categoryId, pageable);
     }
-
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
-    }
-
+    public Optional<Product> getProductById(Long id) { return productRepository.findById(id); }
     public Page<Product> getAllActiveProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return productRepository.findAll(pageable);
+        return productRepository.findByActiveTrue(pageable);
     }
 
-    // ====== ADMIN FUNCTIONS ======
-
+    // --- Cập nhật/Bổ sung các hàm Admin ---
     public Page<Product> adminSearchProducts(String name, Long categoryId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return productRepository.searchProducts(
-                (name != null && !name.isBlank()) ? name : null,
-                categoryId,
-                pageable);
+        return productRepository.searchProducts((name != null && !name.isBlank()) ? name : null, categoryId, pageable);
     }
-
-    public Product saveProduct(Product product) {
-        return productRepository.save(product);
-    }
-
+    public Product saveProduct(Product product) { return productRepository.save(product); }
     public void deleteProduct(Long id) {
-        productRepository.findById(id).ifPresent(p -> {
-            p.setActive(false);
-            productRepository.save(p);
-        });
+        productRepository.findById(id).ifPresent(p -> { p.setActive(false); productRepository.save(p); });
     }
+    public void hardDeleteProduct(Long id) { productRepository.deleteById(id); }
 
-    public void hardDeleteProduct(Long id) {
-        productRepository.deleteById(id);
-    }
-
-    public long countActiveProducts() {
-        return productRepository.countByActiveTrue();
-    }
+    // BỔ SUNG: Hàm đếm chuẩn để không lỗi nữa
+    public long countActiveProducts() { return productRepository.countByActiveTrue(); }
+    public long countAllProducts() { return productRepository.count(); } // Hàm này giúp trang thống kê hoạt động
 
     public List<Product> getLowStockProducts() {
         return productRepository.findByStockQuantityLessThanAndActiveTrue(5);

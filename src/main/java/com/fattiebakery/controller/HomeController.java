@@ -1,10 +1,13 @@
 package com.fattiebakery.controller;
 
+import com.fattiebakery.model.Category;
 import com.fattiebakery.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 public class HomeController {
@@ -12,12 +15,17 @@ public class HomeController {
     @Autowired private ProductService productService;
     @Autowired private CategoryService categoryService;
 
+    // Tự động thêm danh mục vào tất cả các view trả về từ Controller này
+    @ModelAttribute("categories")
+    public List<Category> getCategories() {
+        return categoryService.getActiveCategories();
+    }
+
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("newestProducts", productService.getNewestProducts());
         model.addAttribute("bestSellingProducts", productService.getBestSellingProducts());
         model.addAttribute("featuredProducts", productService.getFeaturedProducts());
-        model.addAttribute("categories", categoryService.getActiveCategories());
         return "user/home";
     }
 
@@ -32,7 +40,6 @@ public class HomeController {
         } else {
             model.addAttribute("products", productService.getAllActiveProducts(page, size));
         }
-        model.addAttribute("categories", categoryService.getActiveCategories());
         model.addAttribute("currentPage", page);
         return "user/shop";
     }
@@ -43,7 +50,6 @@ public class HomeController {
                          Model model) {
         model.addAttribute("products", productService.searchProducts(keyword, page, 12));
         model.addAttribute("keyword", keyword);
-        model.addAttribute("categories", categoryService.getActiveCategories());
         return "user/search";
     }
 
@@ -51,27 +57,20 @@ public class HomeController {
     public String productDetail(@PathVariable Long id, Model model) {
         return productService.getProductById(id).map(p -> {
             model.addAttribute("product", p);
-            model.addAttribute("categories", categoryService.getActiveCategories());
-            model.addAttribute("relatedProducts",
-                    productService.getProductsByCategory(p.getCategory() != null ? p.getCategory().getId() : null, 0, 4).getContent());
+            // Kiểm tra category tồn tại trước khi gọi service
+            if (p.getCategory() != null) {
+                model.addAttribute("relatedProducts",
+                        productService.getProductsByCategory(p.getCategory().getId(), 0, 4).getContent());
+            }
             return "user/product-detail";
         }).orElse("redirect:/shop");
     }
-    // Điều hướng cho trang Chuyện của bé
-    @GetMapping("/story")
-    public String storyPage() {
-        return "user/story"; // Thêm "user/" vào trước
-    }
 
-    // Điều hướng cho trang Giới thiệu
-    @GetMapping("/about")
-    public String aboutPage() {
-        return "user/about"; // Thêm "user/" vào trước
-    }
-
-    // Điều hướng cho trang Liên hệ
-    @GetMapping("/contact")
-    public String contactPage() {
-        return "user/contact"; // Thêm "user/" vào trước
+    // Các trang tĩnh (Story, About, Contact)
+    @GetMapping({"/story", "/about", "/contact"})
+    public String staticPages(jakarta.servlet.http.HttpServletRequest request) {
+        // Lấy đường dẫn cuối (ví dụ: "/story" -> "user/story")
+        String path = request.getRequestURI().replace("/", "");
+        return "user/" + path;
     }
 }

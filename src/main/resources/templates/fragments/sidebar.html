@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<meta charset="UTF-8"/>
+
+<!-- 🧭 SIDEBAR CHUNG CHO CÁC TRANG ADMIN -->
+<div th:fragment="sidebar(activePage)" class="sidebar">
+    <div class="sidebar-brand d-flex align-items-center gap-2">
+        <i class="fas fa-cookie-bite"></i>
+        <span>Fattie Admin</span>
+    </div>
+
+    <div class="py-2">
+        <a href="/admin/dashboard" th:classappend="${activePage == 'dashboard'} ? 'active' : ''" class="sidebar-item">
+            <i class="fas fa-chart-line"></i> Tổng quan lò bánh
+        </a>
+        <a href="/admin/products" th:classappend="${activePage == 'products'} ? 'active' : ''" class="sidebar-item">
+            <i class="fas fa-bread-slice"></i> Thực đơn bánh & trà
+        </a>
+        <a href="/admin/categories" th:classappend="${activePage == 'categories'} ? 'active' : ''" class="sidebar-item">
+            <i class="fas fa-tags"></i> Danh mục bánh
+        </a>
+        <a href="/admin/orders" th:classappend="${activePage == 'orders'} ? 'active' : ''" class="sidebar-item">
+            <i class="fas fa-mug-hot"></i> Đơn đặt bàn & Ship
+        </a>
+        <a href="/admin/users" th:classappend="${activePage == 'users'} ? 'active' : ''" class="sidebar-item">
+            <i class="fas fa-users"></i> Khách thích ngọt
+        </a>
+        <a href="/admin/discounts" th:classappend="${activePage == 'discounts'} ? 'active' : ''" class="sidebar-item">
+            <i class="fas fa-percentage"></i> Ưu đãi tiệc trà
+        </a>
+        <a href="/admin/statistics" th:classappend="${activePage == 'statistics'} ? 'active' : ''" class="sidebar-item">
+            <i class="fas fa-chart-bar"></i> Doanh thu tiệm
+        </a>
+
+        <hr style="border-color:rgba(234, 220, 201, 0.15); margin:12px 20px;"/>
+
+        <a href="/" class="sidebar-item"><i class="fas fa-store"></i> Ghé Trang Chủ Web</a>
+        <a href="/logout" class="sidebar-item" style="color:#e74c3c;"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+    </div>
+</div>
+</body>
+</html>

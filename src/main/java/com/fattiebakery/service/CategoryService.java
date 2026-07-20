@@ -4,25 +4,26 @@ import com.fattiebakery.model.Category;
 import com.fattiebakery.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class CategoryService {
 
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
-    }
-
+    // 1. Dành cho User (Chỉ hiển thị danh mục đang hoạt động)
     public List<Category> getActiveCategories() {
         return categoryRepository.findByActiveTrue();
     }
 
+    // 2. Dành cho Admin (Hiển thị tất cả để quản lý)
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
+    }
+
+    // 3. Các hàm CRUD cơ bản
     public Optional<Category> getCategoryById(Long id) {
         return categoryRepository.findById(id);
     }
@@ -32,10 +33,7 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long id) {
-        categoryRepository.findById(id).ifPresent(c -> {
-            c.setActive(false);
-            categoryRepository.save(c);
-        });
+        categoryRepository.deleteById(id);
     }
 
     public boolean existsByName(String name) {
