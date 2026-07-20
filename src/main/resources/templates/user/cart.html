@@ -198,7 +198,6 @@
                                     <div class="price-tag-cart" th:text="${#numbers.formatDecimal(item.product.price,0,'COMMA',0,'POINT')} + 'đ'"></div>
                                 </div>
 
-                                <!-- ĐÃ ĐỔI THÀNH CÚ PHÁP |...| ĐỂ FIX TRIỆT ĐỂ LỖI THYMELEAF -->
                                 <div class="qty-group">
                                     <button type="button" class="qty-btn" th:onclick="|changeQty('${item.id}', -1)|">−</button>
                                     <span class="fw-800 px-3 text-dark" th:id="'qty-' + ${item.id}" th:text="${item.quantity}">1</span>
@@ -209,7 +208,6 @@
                                      th:text="${#numbers.formatDecimal(item.product.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + 'đ'">
                                 </div>
 
-                                <!-- ĐÃ FIX CÚ PHÁP Ở ĐÂY LUÔN -->
                                 <button type="button" th:onclick="|removeItem('${item.id}')|" class="btn btn-link text-danger p-2">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
@@ -259,11 +257,9 @@
         </div>
     </div>
 
-    <!-- TOÀN BỘ LOGIC JS ĐƯỢC GIỮ NGUYÊN HOÀN TOÀN ĐỂ KHÔNG LỖI HỆ THỐNG -->
     <script th:inline="javascript">
         let appliedCouponCode = "";
 
-        // Hàm format tiền tệ (cần thiết để không bị lỗi gọi hàm)
         function formatVND(amount) {
             return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
         }
@@ -377,7 +373,6 @@
         }
 
         function changeQty(id, delta) {
-            // (Giữ nguyên logic cũ của bạn ở đây...)
             const span = document.getElementById('qty-' + id);
             const row  = document.getElementById('item-row-' + id);
             let newQty = parseInt(span.textContent) + delta;
@@ -396,6 +391,72 @@
                 body: `itemId=${id}&quantity=${newQty}`
             });
         }
+
+        // ==========================================
+        // HÀM XÓA SẢN PHẨM KHỎI GIỎ HÀNG (THÙNG RÁC)
+        // ==========================================
+        function removeItem(id) {
+            if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng không?")) {
+                return;
+            }
+
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+            const token  = document.querySelector('meta[name="_csrf"]').content;
+
+            fetch('/api/cart/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    [header]: token
+                },
+                body: `itemId=${id}`
+            })
+                .then(res => {
+                    if (res.ok) {
+                        // Xóa dòng HTML của sản phẩm đó đi ngay lập tức
+                        const row = document.getElementById('item-row-' + id);
+                        if (row) {
+                            row.remove();
+                        }
+
+                        // Tính lại tổng tiền sau khi xóa
+                        updateSummary();
+
+                        // Nếu giỏ hàng trống sau khi xóa thì reload lại trang để hiện giao diện giỏ hàng trống
+                        if (document.querySelectorAll('.cart-item').length === 0) {
+                            location.reload();
+                        }
+                    } else {
+                        alert("Không thể xóa sản phẩm, vui lòng thử lại!");
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi:", err);
+                    alert("Đã xảy ra lỗi kết nối!");
+                });
+        }
+
+        // TỰ ĐỘNG CHẠY KHI VỪA LOAD TRANG
+        document.addEventListener("DOMContentLoaded", function() {
+            updateSummary();
+
+            const selectAllCheckbox = document.getElementById('selectAll');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    const isChecked = this.checked;
+                    document.querySelectorAll('.item-checkbox').forEach(cb => {
+                        cb.checked = isChecked;
+                    });
+                    updateSummary();
+                });
+            }
+
+            document.querySelectorAll('.item-checkbox').forEach(cb => {
+                cb.addEventListener('change', function() {
+                    updateSummary();
+                });
+            });
+        });
     </script>
 </section>
 

@@ -41,16 +41,13 @@ public class OrderService {
         // 2. Xử lý mã giảm giá
         if (discountCodeStr != null && !discountCodeStr.isBlank()) {
             try {
-                // Lấy số tiền được giảm
                 discountAmount = discountCodeService.applyDiscount(discountCodeStr, totalAmount);
-                // Tìm đối tượng DiscountCode để lưu vào Order
                 discountCode = discountCodeService.findByCode(discountCodeStr).orElse(null);
 
                 if (discountCode != null) {
                     discountCodeService.incrementUsage(discountCode);
                 }
             } catch (Exception e) {
-                // Nếu mã lỗi (hết hạn, ko đủ điều kiện) thì cho giảm về 0 để khách vẫn đặt được hàng
                 discountAmount = BigDecimal.ZERO;
                 System.err.println("Lỗi áp mã giảm giá: " + e.getMessage());
             }
@@ -58,7 +55,7 @@ public class OrderService {
 
         BigDecimal finalAmount = totalAmount.subtract(discountAmount);
 
-        // 3. Khởi tạo đối tượng Order (Dùng Setter cho an toàn nếu Builder của bác bị lỗi)
+        // 3. Khởi tạo đối tượng Order
         Order order = new Order();
         order.setOrderCode(generateOrderCode());
         order.setUser(user);
@@ -81,19 +78,16 @@ public class OrderService {
         for (CartItem cartItem : cartItems) {
             Product p = cartItem.getProduct();
 
-            // Kiểm tra tồn kho
             if (p.getStockQuantity() < cartItem.getQuantity()) {
                 throw new RuntimeException("Sản phẩm " + p.getName() + " không đủ hàng bác ơi!");
             }
 
-            // Cập nhật số lượng
             p.setSoldCount(p.getSoldCount() + cartItem.getQuantity());
             p.setStockQuantity(p.getStockQuantity() - cartItem.getQuantity());
             productRepository.save(p);
 
-            // Tạo Item con
             OrderItem oi = new OrderItem();
-            oi.setOrder(order); // Gán cha cho con (Bắt buộc để tránh lỗi 500)
+            oi.setOrder(order);
             oi.setProduct(p);
             oi.setProductName(p.getName());
             oi.setProductPrice(p.getPrice());
@@ -103,14 +97,9 @@ public class OrderService {
             orderItems.add(oi);
         }
 
-        // 5. Gán danh sách con vào cha
         order.setOrderItems(orderItems);
-
-        // 6. Lưu đơn hàng vào Database
         return orderRepository.save(order);
     }
-
-    // --- CÁC HÀM BỔ TRỢ ---
 
     public Optional<Order> findById(Long id) {
         return orderRepository.findById(id);
@@ -123,6 +112,25 @@ public class OrderService {
     public Order updateOrderStatus(Long id, Order.OrderStatus newStatus) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
+
+        Order.OrderStatus oldStatus = order.getStatus();
+
+        // SỬA THÀNH CANCELLED (2 chữ L chuẩn theo Enum của Model)
+        if (oldStatus != Order.OrderStatus.CANCELLED && newStatus == Order.OrderStatus.CANCELLED) {
+            for (OrderItem item : order.getOrderItems()) {
+                Product product = item.getProduct();
+                if (product != null) {
+                    product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+
+                    if (product.getSoldCount() != null && product.getSoldCount() >= item.getQuantity()) {
+                        product.setSoldCount(product.getSoldCount() - item.getQuantity());
+                    }
+
+                    productRepository.save(product);
+                }
+            }
+        }
+
         order.setStatus(newStatus);
         if (newStatus == Order.OrderStatus.DELIVERED) {
             order.setPaymentStatus(Order.PaymentStatus.PAID);
@@ -133,8 +141,6 @@ public class OrderService {
     private String generateOrderCode() {
         return "KF" + System.currentTimeMillis();
     }
-
-    // --- THỐNG KÊ ADMIN ---
 
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
@@ -157,8 +163,6 @@ public class OrderService {
             }
         }
 
-        // Nếu bác chưa có hàm searchOrders trong OrderRepository,
-        // tạm thời bác có thể dùng hàm mặc định của Spring Data JPA như sau:
         if (statusEnum != null) {
             return orderRepository.findByStatus(statusEnum, pageable);
         }
@@ -171,14 +175,14 @@ public class OrderService {
     }
 
     public double[] getMonthlyRevenueData() {
-        double[] monthlyData = new double[12]; // Mảng 12 phần tử toàn số 0
+        double[] monthlyData = new double[12];
         List<Object[]> rawData = orderRepository.getMonthlyRevenueRaw();
 
         for (Object[] row : rawData) {
-            int month = (int) row[0]; // Tháng (1-12)
-            double revenue = ((Number) row[1]).doubleValue(); // Doanh thu
+            int month = (int) row[0];
+            double revenue = ((Number) row[1]).doubleValue();
             if (month >= 1 && month <= 12) {
-                monthlyData[month - 1] = revenue; // Gán vào đúng vị trí trong mảng
+                monthlyData[month - 1] = revenue;
             }
         }
         return monthlyData;
