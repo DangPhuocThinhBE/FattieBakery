@@ -1,4 +1,4 @@
-# Bước 1: Build dự án
+# Bước 1: Build dự án với Maven và Java 22
 FROM maven:3.9.9-eclipse-temurin-22 AS build
 
 WORKDIR /app
@@ -10,13 +10,13 @@ COPY . .
 
 RUN mvn clean package -DskipTests
 
-# Bước 2: Chạy ứng dụng
-FROM eclipse-temurin:22-jdk
+# Bước 2: Chạy ứng dụng với JRE 22
+FROM eclipse-temurin:22-jre
 
 WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
-EXPOSE 8081
+EXPOSE 8080
 
-ENTRYPOINT ["java", "-Xmx512M", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
