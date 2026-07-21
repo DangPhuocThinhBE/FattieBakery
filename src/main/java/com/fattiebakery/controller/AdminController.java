@@ -164,6 +164,22 @@ public class AdminController {
         }).orElse("redirect:/admin/orders");
     }
 
+
+    @GetMapping
+    public String viewDiscountsPage(Model model) {
+        // Khớp với hàm getAllDiscountCodes() trong Service của bạn
+        model.addAttribute("discounts", discountCodeService.getAllDiscountCodes());
+        model.addAttribute("discount", new DiscountCode());
+        return "admin/discounts";
+    }
+
+    @PostMapping("/save")
+    public String saveDiscount(@ModelAttribute("discount") DiscountCode discountCode) {
+        // Khớp với hàm save() trong Service của bạn
+        discountCodeService.save(discountCode);
+        return "redirect:/admin/discounts";
+    }
+}
+
     // ==================== KHÁC ====================
     // [GIỮ NGUYÊN PHẦN: DISCOUNT CODES, STATISTICS]
-}
