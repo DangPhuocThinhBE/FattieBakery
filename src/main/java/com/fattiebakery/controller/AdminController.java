@@ -10,12 +10,15 @@ import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -140,16 +143,23 @@ public class AdminController {
         return "admin/orders";
     }
 
-    // Bỏ bớt chữ "/admin" vì đã có @RequestMapping("/admin") ở đầu class
+    // ==================== STATISTICS (Đã gộp để tránh trùng lặp URL) ====================
     @GetMapping("/statistics")
-    public String statistics(Model model) {
-        Map<String, Object> stats = orderService.getDashboardStats();
-        if (stats == null) stats = new java.util.HashMap<>();
+    public String statistics(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
 
-        // Đảm bảo có đủ key, nếu không có thì gán giá trị mặc định
-        stats.putIfAbsent("monthlyRevenueList", java.util.Arrays.asList(0,0,0,0,0,0,0,0,0,0,0,0));
-        stats.putIfAbsent("pendingOrders", 0);
-        stats.putIfAbsent("deliveredOrders", 0);
+        Map<String, Object> stats = orderService.getStatisticsByDateRange(startDate, endDate);
+
+        // Bổ sung các thông tin phụ trợ cho giao diện báo cáo doanh thu
+        model.addAttribute("totalProducts", productService.countActiveProducts());
+        model.addAttribute("totalUsers", userService.countActiveUsers());
+
+        // Format định dạng tiền tệ tổng doanh thu ra chuỗi hiển thị đẹp mắt
+        BigDecimal totalRev = (BigDecimal) stats.get("totalRevenue");
+        model.addAttribute("revenueFormatted", totalRev != null ?
+                String.format("%,d", totalRev.longValue()).replace(',', '.') : "0");
 
         model.addAttribute("stats", stats);
         return "admin/statistics";
