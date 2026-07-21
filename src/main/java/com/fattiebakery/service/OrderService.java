@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -126,5 +128,27 @@ public class OrderService {
             }
         }
         return revenueData;
+    }
+
+    public Map<String, Object> getStatisticsByDateRange(LocalDate startDate, LocalDate endDate) {
+        Map<String, Object> stats = new HashMap<>();
+
+        // Nếu chưa chọn ngày, mặc định lấy 30 ngày gần nhất
+        if (startDate == null) startDate = LocalDate.now().minusDays(30);
+        if (endDate == null) endDate = LocalDate.now();
+
+        // Chuyển đổi LocalDate thành LocalDateTime quét trọn vẹn từ 00:00:00 đến 23:59:59
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+
+        BigDecimal totalRevenue = orderRepository.getRevenueBetween(startDateTime, endDateTime);
+        List<Object[]> dailyData = orderRepository.getDailyStatisticsRaw(startDateTime, endDateTime);
+
+        stats.put("startDate", startDate);
+        stats.put("endDate", endDate);
+        stats.put("totalRevenue", totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
+        stats.put("dailyList", dailyData);
+
+        return stats;
     }
 }

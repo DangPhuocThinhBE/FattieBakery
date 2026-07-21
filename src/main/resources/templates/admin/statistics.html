@@ -14,14 +14,16 @@
         .font-playfair { font-family: 'Playfair Display', serif; }
         .sidebar { width: 260px; min-height: 100vh; background: var(--sidebar-bg); position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid rgba(234, 220, 201, 0.1); }
         .sidebar-brand { font-family:'Playfair Display',serif; color:#EADCC9; font-size:1.4rem; padding:24px 20px; border-bottom:1px dashed #444; }
-        .sidebar-item { display:flex; align-items:center; padding:13px 20px; color:rgba(255,255,255,.6); text-decoration:none; font-weight:600; font-size:0.85rem; text-transform:uppercase; }
+        .sidebar-item { display:flex; align-items:center; padding:13px 20px; color:rgba(255,255,255,.6); text-decoration:none; font-weight:600; font-size:0.85rem; text-transform:uppercase; transition:0.3s; }
         .sidebar-item:hover, .sidebar-item.active { color:#fff; background:rgba(139,50,56,.3); border-left:4px solid var(--logo-red); }
         .main-content { margin-left: 260px; padding: 24px; }
-        .topbar { background: #fff; border: 1px solid var(--border-tan); padding: 16px 24px; margin-bottom: 24px; }
-        .stat-card { border: 1px solid var(--border-tan); padding: 20px; background: #fff; text-align: center; }
+        .topbar { background: #fff; border: 1px solid var(--border-tan); padding: 16px 24px; margin-bottom: 24px; display:flex; justify-content:space-between; align-items:center; }
+        .stat-card { border: 1px solid var(--border-tan); padding: 20px; background: #fff; text-align: center; height: 100%; }
         .stat-value { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--logo-red); font-weight: 900; }
         .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #888; }
         .card { border: 1px solid var(--border-tan) !important; border-radius: 0 !important; background: #fff; box-shadow: none !important; }
+        .btn-bakery { border-radius: 0 !important; font-weight: 700; text-transform: uppercase; background: var(--logo-red); color: white; }
+        .btn-bakery:hover { background: #6d272b; color: white; }
     </style>
 </head>
 <body>
@@ -29,86 +31,135 @@
 <div class="sidebar">
     <div class="sidebar-brand"><i class="fas fa-cookie-bite me-2"></i>Fattie Admin</div>
     <div class="sidebar-menu">
-        <a href="/admin/statistics" class="sidebar-item active"><i class="fas fa-chart-line"></i> Báo cáo tiệm</a>
+        <a href="/admin/dashboard" class="sidebar-item"><i class="fas fa-chart-line"></i> Tổng quan lò bánh</a>
+        <a href="/admin/statistics" class="sidebar-item active"><i class="fas fa-chart-bar"></i> Báo cáo doanh thu</a>
         <a href="/admin/products" class="sidebar-item"><i class="fas fa-bread-slice"></i> Thực đơn</a>
         <a href="/admin/orders" class="sidebar-item"><i class="fas fa-mug-hot"></i> Đơn hàng</a>
     </div>
 </div>
 
 <div class="main-content">
-    <div class="topbar"><h5 class="mb-0 fw-bold font-playfair" style="color:var(--logo-red);">📊 BÁO CÁO DOANH THU TIỆC TRÀ</h5></div>
+    <div class="topbar">
+        <h5 class="mb-0 fw-bold font-playfair" style="color:var(--logo-red);">📊 BÁO CÁO DOANH THU TIỆC TRÀ</h5>
+        <a href="/admin/dashboard" class="btn btn-outline-dark btn-sm rounded-0">Quay lại Dashboard</a>
+    </div>
 
+    <!-- FORM LỌC TỪ NGÀY - ĐẾN NGÀY -->
+    <div class="card p-4 mb-4">
+        <form method="get" action="/admin/statistics" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold small text-uppercase">Từ ngày:</label>
+                <input type="date" name="startDate" class="form-control rounded-0" th:value="${stats.startDate}"/>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold small text-uppercase">Đến ngày:</label>
+                <input type="date" name="endDate" class="form-control rounded-0" th:value="${stats.endDate}"/>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-bakery w-100">
+                    <i class="fas fa-filter me-1"></i> Lọc Doanh Thu
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- THỐNG KÊ TỔNG QUAN -->
     <div class="row g-3 mb-4">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="stat-card">
-                <div class="stat-label">Tổng doanh thu</div>
+                <div class="stat-label">Tổng doanh thu (Khoảng đã chọn)</div>
                 <div class="stat-value" th:text="${revenueFormatted} + 'đ'">0đ</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="stat-card">
-                <div class="stat-label">Doanh thu tháng này</div>
-                <div class="stat-value" th:text="${monthRevFormatted} + 'đ'">0đ</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-label">Số loại bánh</div>
+                <div class="stat-label">Tổng loại bánh/trà</div>
                 <div class="stat-value" th:text="${totalProducts}">0</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="stat-card">
-                <div class="stat-label">Thành viên mới</div>
+                <div class="stat-label">Tổng khách hàng</div>
                 <div class="stat-value" th:text="${totalUsers}">0</div>
             </div>
         </div>
     </div>
 
+    <!-- BIỂU ĐỒ & BẢNG CHI TIẾT THEO NGÀY -->
     <div class="row g-4">
-        <div class="col-md-5">
-            <div class="card p-4">
-                <h6 class="fw-bold mb-3 font-playfair">📦 ĐƠN HÀNG TẠI BẾP</h6>
-                <canvas id="orderStatusChart" style="max-height: 250px;"></canvas>
+        <!-- Biểu đồ doanh thu theo ngày -->
+        <div class="col-md-7">
+            <div class="card p-4 h-100">
+                <h6 class="fw-bold mb-3 font-playfair">💰 BIỂU ĐỒ DOANH THU THEO NGÀY</h6>
+                <canvas id="dailyRevenueChart" style="max-height: 300px;"></canvas>
             </div>
         </div>
-        <div class="col-md-7">
-            <div class="card p-4">
-                <h6 class="fw-bold mb-3 font-playfair">💰 BIẾN ĐỘNG DOANH THU</h6>
-                <canvas id="revenueChart" style="max-height: 250px;"></canvas>
+
+        <!-- Bảng chi tiết doanh thu theo từng ngày -->
+        <div class="col-md-5">
+            <div class="card p-4 h-100">
+                <h6 class="fw-bold mb-3 font-playfair">📋 CHI TIẾT THEO NGÀY</h6>
+                <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark" style="background-color: var(--logo-red);">
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Đơn</th>
+                            <th>Doanh thu</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="row : ${stats.dailyList}">
+                            <td class="fw-bold small" th:text="${row[0]}">2026-06-01</td>
+                            <td th:text="${row[1]}">2</td>
+                            <td class="fw-bold text-danger" th:text="${#numbers.formatDecimal(row[2], 0, 'POINT', 0, 'COMMA') + 'đ'}">0đ</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(stats.dailyList)}">
+                            <td colspan="3" class="text-center text-muted py-3 small">Không có doanh thu trong khoảng này.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- SCRIPT VẼ BIỂU ĐỒ DỰA TRÊN DỮ LIỆU THỰC TẾ -->
 <script th:inline="javascript">
     /*<![CDATA[*/
-    // Nhận trực tiếp các giá trị từ Controller (đảm bảo Controller đã addAttribute các biến này)
-    const revenueData = /*[[${stats.monthlyRevenueList}]]*/ [0,0,0,0,0,0,0,0,0,0,0,0];
-    const pending = /*[[${stats.pendingOrders}]]*/ 0;
-    const delivered = /*[[${stats.deliveredOrders}]]*/ 0;
+    // Nhận dữ liệu mảng dailyList từ OrderService trả về
+    const dailyDataRaw = /*[[${stats.dailyList}]]*/ [];
 
-    // Kiểm tra dự phòng nếu giá trị vẫn là null
-    const finalRevenueData = revenueData || [0,0,0,0,0,0,0,0,0,0,0,0];
-    const finalPending = pending || 0;
-    const finalDelivered = delivered || 0;
+    // Tách mảng thành nhãn ngày (labels) và giá trị doanh thu (data) cho Chart.js
+    const chartLabels = [];
+    const chartValues = [];
 
-    new Chart(document.getElementById('revenueChart'), {
+    if (dailyDataRaw && dailyDataRaw.length > 0) {
+        dailyDataRaw.forEach(item => {
+            chartLabels.push(item[0]); // Ngày
+            chartValues.push(item[2]); // Doanh thu
+        });
+    }
+
+    new Chart(document.getElementById('dailyRevenueChart'), {
         type: 'bar',
         data: {
-            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
-            datasets: [{ label: 'Doanh thu (đ)', data: finalRevenueData, backgroundColor: '#8B3238' }]
+            labels: chartLabels,
+            datasets: [{
+                label: 'Doanh thu (đ)',
+                data: chartValues,
+                backgroundColor: '#8B3238',
+                borderRadius: 2
+            }]
         },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-    });
-
-    new Chart(document.getElementById('orderStatusChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Chờ ủ bánh', 'Đã dùng xong'],
-            datasets: [{ data: [finalPending, finalDelivered], backgroundColor: ['#EADCC9', '#8B3238'] }]
-        },
-        options: { responsive: true }
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
     });
     /*]]>*/
 </script>

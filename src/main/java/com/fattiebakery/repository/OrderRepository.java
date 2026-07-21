@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,4 +49,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findByOrderCodeContainingIgnoreCaseOrCustomerNameContainingIgnoreCase(String keyword, String keyword1, Pageable pageable);
 
     List<Order> findByUserId(Long userId);
+
+    @Query("SELECT COALESCE(SUM(o.finalAmount), 0) FROM Order o WHERE o.createdAt BETWEEN :startDateTime AND :endDateTime AND o.status = 'DELIVERED'")
+    BigDecimal getRevenueBetween(@Param("startDateTime") LocalDateTime startDateTime, @Param("endDateTime") LocalDateTime endDateTime);
+
+    @Query("SELECT FUNCTION('DATE', o.createdAt), SUM(o.finalAmount), COUNT(o) " +
+            "FROM Order o " +
+            "WHERE o.createdAt BETWEEN :startDateTime AND :endDateTime AND o.status = 'DELIVERED' " +
+            "GROUP BY FUNCTION('DATE', o.createdAt) " +
+            "ORDER BY FUNCTION('DATE', o.createdAt) ASC")
+    List<Object[]> getDailyStatisticsRaw(@Param("startDateTime") LocalDateTime startDateTime,
+                                         @Param("endDateTime") LocalDateTime endDateTime);
 }
