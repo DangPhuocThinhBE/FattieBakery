@@ -142,6 +142,18 @@
                         <div class="info-label"><i class="fas fa-user me-1"></i> Tên đăng nhập</div>
                         <div class="info-value" th:text="${user != null ? user.username : 'Đang tải...'}">user123</div>
                     </div>
+
+                    <!-- THÔNG TIN NGÀY SINH ĐÃ BỔ SUNG -->
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fas fa-birthday-cake me-1"></i> Ngày sinh (Nhận quà ưu đãi)</div>
+                        <div class="info-value" th:text="${user != null && user.dateOfBirth != null ? #temporals.format(user.dateOfBirth, 'dd/MM/yyyy') : 'Chưa cập nhật ngày sinh'}">DD/MM/YYYY</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fas fa-envelope me-1"></i> Email tài khoản</div>
+                        <div class="info-value" th:text="${user != null && user.email != null ? user.email : 'Chưa cập nhật'}">email@example.com</div>
+                    </div>
+
                     <div class="col-md-12">
                         <div class="info-label"><i class="fas fa-map-marker-alt me-1"></i> Địa chỉ giao nhận bánh</div>
                         <div class="info-value" th:text="${user != null && user.address != null && user.address != '' ? user.address : 'Chưa cập nhật địa chỉ giao hàng'}">Địa chỉ cụ thể...</div>

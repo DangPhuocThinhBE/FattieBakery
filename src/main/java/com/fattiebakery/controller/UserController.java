@@ -3,7 +3,7 @@ package com.fattiebakery.controller;
 import com.fattiebakery.model.User;
 import com.fattiebakery.repository.UserRepository;
 import com.fattiebakery.service.UserService;
-import com.fattiebakery.service.CartService; // Added to show cart count on profile
+import com.fattiebakery.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,51 +25,56 @@ public class UserController {
     @Autowired
     private CartService cartService;
 
+    // 1. Hiển thị trang thông tin cá nhân
     @GetMapping("/profile")
     public String showProfile(Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
 
-        // 1. Lấy định danh từ Google (thường là Email)
         String loginId = principal.getName();
-        System.out.println("===> Dang tim User trong DB voi ID: " + loginId);
-
-        // 2. Tìm User: Phải check cả Username và Email bác nhé!
         User user = userRepository.findByUsername(loginId)
                 .orElseGet(() -> userRepository.findByEmail(loginId).orElse(null));
 
-        // 3. Nếu vẫn không thấy (Đây là lý do bác bị đá ra ngoài)
         if (user == null) {
-            System.out.println("===> LOI: Khong tim thay User " + loginId + " trong Database!");
             return "redirect:/login?error=usernotfound";
         }
 
         model.addAttribute("user", user);
-        return "user/profile"; // Hoặc đường dẫn file HTML profile của bác
+        return "user/profile";
     }
 
+    // 2. Mở trang chỉnh sửa hồ sơ (Khớp với file edit_profile.html của bác)
     @GetMapping("/profile/edit")
     public String editProfile(Model model, Principal principal) {
-        if (principal == null) return "redirect:/login";
+        if (principal == null) {
+            return "redirect:/login";
+        }
 
         String loginId = principal.getName();
         User user = userService.findByUsername(loginId)
                 .orElseGet(() -> userService.findByEmail(loginId).orElse(null));
 
-        if (user == null) return "redirect:/user/profile";
+        if (user == null) {
+            return "redirect:/user/profile";
+        }
 
         model.addAttribute("user", user);
         return "user/edit_profile";
     }
 
+    // 3. Xử lý lưu thay đổi hồ sơ & upload ảnh đại diện (Đã fix chuẩn đường dẫn POST)
     @PostMapping("/profile/update")
     public String updateProfile(@ModelAttribute("user") User userDetails,
                                 @RequestParam(value = "avatarFile", required = false) MultipartFile file,
                                 Principal principal) {
-        if (principal == null) return "redirect:/login";
+        if (principal == null) {
+            return "redirect:/login";
+        }
 
         String loginId = principal.getName();
+
+        // Gọi Service xử lý lưu thông tin vào database và upload ảnh
         userService.updateUser(loginId, userDetails, file);
 
         return "redirect:/user/profile?success=true";

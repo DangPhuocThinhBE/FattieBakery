@@ -2,7 +2,6 @@ package com.fattiebakery.service;
 
 import com.fattiebakery.model.User;
 import com.fattiebakery.repository.UserRepository;
-import com.fattiebakery.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,42 +25,43 @@ public class UserServiceImpl extends UserService {
     }
 
     @Override
-    public void updateUser(String username, User userDetails, MultipartFile file) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng: " + username));
+    public void updateUser(String loginId, User userDetails, MultipartFile file) {
+        // Tìm user theo username hoặc email
+        User user = userRepository.findByUsername(loginId)
+                .orElseGet(() -> userRepository.findByEmail(loginId)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng: " + loginId)));
 
-        // 1. Cập nhật thông tin chữ
+        // 1. Cập nhật thông tin chữ cơ bản
         user.setFullName(userDetails.getFullName());
         user.setPhone(userDetails.getPhone());
         user.setAddress(userDetails.getAddress());
 
-        // 2. Xử lý File ảnh nếu bác Hải Nam có tải lên
+        // 👉 CẬP NHẬT NGÀY SINH TỪ FORM GỬI LÊN
+        user.setDateOfBirth(userDetails.getDateOfBirth());
+
+        // 2. Xử lý File ảnh đại diện nếu có tải lên
         if (file != null && !file.isEmpty()) {
             try {
-                // Định nghĩa thư mục lưu (phải khớp với cấu hình static của bác)
                 String uploadDir = "src/main/resources/static/uploads/avatars/";
                 Path uploadPath = Paths.get(uploadDir);
 
-                // Tự tạo thư mục nếu chưa có
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath);
                 }
 
-                // Đổi tên file để không bị trùng (dùng UUID)
                 String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
                 Path filePath = uploadPath.resolve(fileName);
 
-                // Lưu file vào ổ cứng
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-                // Lưu đường dẫn vào database để hiển thị ra HTML
                 user.setAvatarUrl("/uploads/avatars/" + fileName);
 
             } catch (IOException e) {
-                throw new RuntimeException("Bác Hải Nam ơi, lỗi lưu ảnh rồi: " + e.getMessage());
+                throw new RuntimeException("Lỗi lưu file ảnh đại diện: " + e.getMessage());
             }
         }
 
+        // 3. Lưu toàn bộ xuống Database TiDB
         userRepository.save(user);
     }
 }

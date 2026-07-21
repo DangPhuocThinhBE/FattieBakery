@@ -2,10 +2,14 @@ package com.fattiebakery;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling; // 1. Import thư viện này vào
 
 @SpringBootApplication
-public class    FattieBakeryApplication {
+@EnableScheduling // 2. Thêm dòng này vào ngay trên tên class chính
+public class FattieBakeryApplication {
+
     public static void main(String[] args) {
         SpringApplication.run(FattieBakeryApplication.class, args);
     }
+
 }

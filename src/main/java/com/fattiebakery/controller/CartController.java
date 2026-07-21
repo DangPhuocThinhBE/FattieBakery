@@ -64,18 +64,32 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/cart/add")
+    public String addCartStandard(@RequestParam Long productId,
+                                  @RequestParam(defaultValue = "1") int quantity,
+                                  Authentication auth, HttpSession session) {
+        User user = getCurrentUser(auth);
+        cartService.addToCart(productId, quantity, user, session.getId());
+        return "redirect:/shop"; // Thêm xong ở lại trang shop, không bị nhảy qua trang giỏ hàng
+    }
+
     @PostMapping("/api/cart/add")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> apiAddToCart(
             @RequestParam Long productId,
             @RequestParam(defaultValue = "1") int quantity,
             Authentication auth, HttpSession session) {
+
+        System.out.println("--> ĐÃ GỌI API THÊM GIỎ HÀNG: ProductID = " + productId + ", Quantity = " + quantity);
+
         Map<String, Object> response = new HashMap<>();
         try {
             User user = getCurrentUser(auth);
             cartService.addToCart(productId, quantity, user, session.getId());
             response.put("success", true);
+            System.out.println("--> THÊM THÀNH CÔNG!");
         } catch (Exception e) {
+            e.printStackTrace(); // In lỗi ra màn hình console để xem lỗi gì
             response.put("success", false);
             response.put("message", e.getMessage());
         }

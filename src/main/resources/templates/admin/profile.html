@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ sơ Quản trị viên - Fattie Bakery</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --logo-red: #8B3238;
+            --logo-red-dark: #6F282D;
+            --bg-soft-cream: #FFFDF8;
+            --border-tan: #EADCC9;
+        }
+        body { background-color: var(--bg-soft-cream); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .profile-card {
+            border: 1px solid var(--border-tan);
+            border-radius: 0 !important;
+            box-shadow: 0 4px 20px rgba(139, 50, 56, 0.05);
+            background: #fff;
+            overflow: hidden;
+        }
+        .profile-header {
+            background: var(--logo-red);
+            padding: 35px;
+            color: white;
+            text-align: center;
+            border-bottom: 2px solid var(--logo-red-dark);
+        }
+        .avatar-box {
+            width: 120px;
+            height: 120px;
+            border: 3px solid var(--border-tan);
+            margin: 0 auto 15px;
+            overflow: hidden;
+            background: #FAF6F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+        .info-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--logo-red);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+        .form-control.info-value {
+            background: #FAF6F0;
+            border: 1px solid #EADCC9;
+            border-radius: 0 !important;
+            padding: 12px 15px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-control.info-value:focus {
+            background: #fff;
+            border-color: var(--logo-red);
+            box-shadow: none;
+        }
+        .badge-bakery {
+            background: #FAF6F0;
+            color: var(--logo-red);
+            border: 1px solid var(--border-tan);
+            padding: 6px 16px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .btn-bakery-primary {
+            background: var(--logo-red);
+            border: none;
+            border-radius: 0 !important;
+            padding: 12px 25px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        .btn-bakery-primary:hover {
+            background: var(--logo-red-dark);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+
+    <!-- Thông báo cập nhật thành công -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mx-auto mb-4" style="max-width: 800px; border-radius: 0;" role="alert">
+        <i class="fas fa-check-circle me-2"></i> Cập nhật thông tin quản trị thành công!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="profile-card mx-auto" style="max-width: 800px;">
+
+        <div class="profile-header">
+            <div class="avatar-box shadow-sm">
+                <img th:src="${user != null && user.avatarUrl != null ? user.avatarUrl : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}"
+                     alt="Avatar Admin">
+            </div>
+            <h2 class="h4 mb-1 fw-bold" th:text="${user != null && user.fullName != null ? user.fullName : 'Quản trị viên'}">Tên Admin</h2>
+            <p class="opacity-75 small mb-2" th:text="${user != null ? user.email : 'admin@fattiebakery.com'}">admin@fattiebakery.com</p>
+            <div>
+                <span class="badge badge-bakery text-uppercase">
+                    <i class="fas fa-shield-alt me-2"></i> Quản trị hệ thống (ADMIN)
+                </span>
+            </div>
+        </div>
+
+        <div class="p-4 p-md-5">
+            <form th:action="@{/admin/profile/update}" method="post" th:object="${user}">
+
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fas fa-user me-1"></i> Tên đăng nhập</div>
+                        <input type="text" class="form-control info-value" th:field="*{username}" readonly style="background: #EADCC9; cursor: not-allowed;" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fas fa-id-card me-1"></i> Họ và tên</div>
+                        <input type="text" class="form-control info-value" th:field="*{fullName}" required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fas fa-envelope me-1"></i> Email quản trị</div>
+                        <input type="email" class="form-control info-value" th:field="*{email}" required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fas fa-phone-alt me-1"></i> Số điện thoại</div>
+                        <input type="text" class="form-control info-value" th:field="*{phone}" placeholder="Chưa cập nhật số điện thoại" />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a href="/admin/discounts" class="btn btn-outline-secondary" style="border-radius: 0; font-weight: 600;">
+                        <i class="fas fa-arrow-left me-2"></i> Quay lại quản trị
+                    </a>
+                    <button type="submit" class="btn btn-bakery-primary">
+                        <i class="fas fa-save me-2"></i> Lưu Thay Đổi
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

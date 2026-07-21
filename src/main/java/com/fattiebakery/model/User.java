@@ -2,6 +2,9 @@ package com.fattiebakery.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,9 +39,14 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String address;
 
-    // Cột ảnh đại diện bác yêu cầu
+    // Cột ảnh đại diện
     @Column(name = "avatar_url")
     private String avatarUrl;
+
+    // Bổ sung trường ngày sinh cho tính năng gửi email chăm sóc khách hàng
+    @Column(name = "date_of_birth")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dateOfBirth;
 
     @Column(nullable = false)
     private Boolean active = true;
@@ -77,7 +85,6 @@ public class User {
     }
 
     /**
-     * PHẦN BỔ SUNG CHO BÁC HẢI NAM
      * Giúp trang Profile hiển thị an toàn, tránh lỗi null
      */
 
@@ -86,7 +93,7 @@ public class User {
         return (fullName != null && !fullName.isEmpty()) ? fullName : username;
     }
 
-    // Kiểm tra xem bác đã có ảnh đại diện chưa
+    // Kiểm tra xem đã có ảnh đại diện chưa
     public boolean hasAvatar() {
         return avatarUrl != null && !avatarUrl.isEmpty();
     }

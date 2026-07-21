@@ -36,6 +36,8 @@
                 box-shadow:0 5px 18px rgba(0,0,0,.08);
                 transition:.3s;
                 height:100%;
+                display: flex;
+                flex-direction: column;
             }
 
             .product-card:hover{
@@ -66,24 +68,36 @@
                 font-size:1.1rem;
             }
 
-            .cart-btn{
-                width:40px;
-                height:40px;
-                border-radius:50%;
-                border:none;
-                background:var(--primary);
-                color:white;
+            .card-body {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
             }
 
-            .cart-btn:hover{
-                background:var(--primary-dark);
+            /* Tùy chỉnh màu sắc phân trang chuẩn Bootstrap */
+            .pagination .page-link {
+                color: var(--primary);
+                border-radius: 8px;
+                margin: 0 4px;
+                border: 1px solid #dee2e6;
+            }
+
+            .pagination .page-item.active .page-link {
+                background-color: var(--primary);
+                border-color: var(--primary);
+                color: #fff;
+            }
+
+            .pagination .page-link:hover {
+                background-color: #fff0f5;
+                color: var(--primary-dark);
             }
         </style>
     </th:block>
 </head>
 <body>
 <section class="container py-5">
-    <!-- Header -->
+    <!-- Header danh mục -->
     <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap">
         <h2 class="fw-bold">
             🛍️ Khám Phá Cửa Hàng
@@ -104,21 +118,16 @@
         </div>
     </div>
 
-    <!-- Không có sản phẩm -->
-
+    <!-- Thông báo nếu không có sản phẩm -->
     <div class="text-center py-5"
          th:if="${products == null or products.content.empty}">
-
         <div style="font-size:70px;">🔍</div>
-
         <h4 class="text-muted mt-3">
             Chưa có sản phẩm.
         </h4>
-
     </div>
 
     <!-- Danh sách sản phẩm -->
-
     <div class="row g-4"
          th:if="${products != null and !products.content.empty}">
         <div class="col-lg-3 col-md-4 col-sm-6"
@@ -134,18 +143,82 @@
                     <h5 class="fw-bold"
                         th:text="${product.name}">
                     </h5>
-                    <p class="price-tag"
+                    <p class="price-tag mb-3"
                        th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + 'đ'">
                     </p>
-                    <button class="btn btn-danger w-100"
-                            th:onclick="|addToCart(${product.id})|">
-                        <i class="fas fa-cart-plus me-2"></i>
-                        Thêm vào giỏ
-                    </button>
+
+                    <!-- FORM THÊM VÀO GIỎ HÀNG DÙNG AJAX -->
+                    <form th:action="@{/cart/add}" method="post" onsubmit="submitAddToCart(event, this)" class="mt-auto">
+                        <input type="hidden" name="productId" th:value="${product.id}" />
+                        <input type="hidden" name="quantity" value="1" />
+                        <button type="submit" class="btn text-white w-100 fw-bold py-2" style="background-color: var(--primary); border-radius: 10px;">
+                            <i class="fas fa-cart-plus me-2"></i> Thêm vào giỏ
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- THANH PHÂN TRANG (PAGINATION) -->
+    <nav th:if="${products != null and products.totalPages > 1}" class="mt-5" aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            <!-- Nút Previous -->
+            <li class="page-item" th:classappend="${products.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/shop(page=${products.number - 1}, category=${selectedCategory != null ? selectedCategory.id : null})}">
+                    <i class="fas fa-chevron-left"></i> Trước
+                </a>
+            </li>
+
+            <!-- Các nút số trang -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}"
+                th:classappend="${i == products.number} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/shop(page=${i}, category=${selectedCategory != null ? selectedCategory.id : null})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+
+            <!-- Nút Next -->
+            <li class="page-item" th:classappend="${products.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/shop(page=${products.number + 1}, category=${selectedCategory != null ? selectedCategory.id : null})}">
+                    Sau <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
 </section>
+
+<!-- SCRIPT GỬI NGẦM FORM THÊM GIỎ HÀNG -->
+<script>
+    function submitAddToCart(event, formElement) {
+        event.preventDefault();
+
+        const formData = new FormData(formElement);
+
+        fetch(formElement.action, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                const btn = formElement.querySelector('button');
+                const originalHtml = btn.innerHTML;
+
+                btn.innerHTML = '<i class="fas fa-check me-2"></i> Đã thêm!';
+                btn.style.backgroundColor = '#28a745';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.style.backgroundColor = 'var(--primary)';
+                }, 1500);
+            })
+            .catch(error => {
+                console.error('Lỗi kết nối:', error);
+                alert('Không thể kết nối đến máy chủ!');
+            });
+    }
+</script>
 </body>
 </html>
