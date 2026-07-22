@@ -6,7 +6,7 @@ import com.fattiebakery.model.*;
 import com.fattiebakery.service.*;
 import lombok.Getter;
 import lombok.Setter;
-// QUAN TRỌNG: Import đúng chuẩn Spring Data
+
 import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +54,8 @@ public class AdminController {
     }
 
     // ==================== PRODUCTS ====================
+
+    // 1. Trang danh sách sản phẩm
     @GetMapping("/products")
     public String products(@RequestParam(required = false) String name,
                            @RequestParam(required = false) Long categoryId,
@@ -64,10 +66,54 @@ public class AdminController {
         return "admin/products";
     }
 
-    // [GIỮ NGUYÊN CÁC METHOD CŨ: newProductForm, editProductForm, saveProduct, deleteProduct]
-    // ... (Để tiết kiệm không gian, bạn giữ nguyên các đoạn code cũ của bạn ở đây) ...
+    // 2. Form tạo mới sản phẩm
+    @GetMapping("/products/new")
+    public String newProductForm(Model model) {
+        model.addAttribute("product", new Product());
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "admin/product-form"; // Trả về file product-fomr.html
+    }
 
-    // ==================== CATEGORIES (BẢN FULL ĐÃ FIX LỖI) ====================
+    // 3. Form chỉnh sửa sản phẩm
+    @GetMapping("/products/edit/{id}")
+    public String editProductForm(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
+        return productService.getProductById(id).map(product -> {
+            model.addAttribute("product", product);
+            model.addAttribute("categories", categoryService.getAllCategories());
+            return "admin/product-form"; // Trả về file product-fomr.html
+        }).orElseGet(() -> {
+            ra.addFlashAttribute("error", "Không tìm thấy sản phẩm!");
+            return "redirect:/admin/products";
+        });
+    }
+
+    // 4. Xử lý lưu sản phẩm (Thêm mới hoặc Cập nhật)
+    @PostMapping("/products/save")
+    public String saveProduct(@ModelAttribute("product") Product product,
+                              @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                              RedirectAttributes ra) {
+        try {
+            productService.saveProduct(product, imageFile);
+            ra.addFlashAttribute("success", "Lưu sản phẩm thành công!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Lỗi lưu sản phẩm: " + e.getMessage());
+        }
+        return "redirect:/admin/products";
+    }
+
+    // 5. Xử lý xóa sản phẩm
+    @PostMapping("/products/delete/{id}")
+    public String deleteProduct(@PathVariable("id") Long id, RedirectAttributes ra) {
+        try {
+            productService.deleteProduct(id);
+            ra.addFlashAttribute("success", "Đã xóa sản phẩm!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Không thể xóa sản phẩm này!");
+        }
+        return "redirect:/admin/products";
+    }
+
+    // ==================== CATEGORIES  ====================
 
     // 1. Hiển thị danh sách
     @GetMapping("/categories")
@@ -134,7 +180,7 @@ public class AdminController {
         return "admin/users";
     }
 
-    // ==================== ORDERS (ĐÃ FIX LỖI 500) ====================
+    // ==================== ORDERS ====================
     @GetMapping("/orders")
     public String orders(@RequestParam(defaultValue = "0") int page, Model model) {
         // Đã sửa thành org.springframework.data.domain.Page
@@ -143,7 +189,7 @@ public class AdminController {
         return "admin/orders";
     }
 
-    // ==================== STATISTICS (Đã gộp để tránh trùng lặp URL) ====================
+    // ==================== STATISTICS ====================
     @GetMapping("/statistics")
     public String statistics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -191,5 +237,3 @@ public class AdminController {
     }
 }
 
-    // ==================== KHÁC ====================
-    // [GIỮ NGUYÊN PHẦN: DISCOUNT CODES, STATISTICS]
