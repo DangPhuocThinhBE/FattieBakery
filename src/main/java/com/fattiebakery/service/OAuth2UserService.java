@@ -13,11 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.HashSet; // Thêm cái này
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set; // Thêm cái này
+import java.util.*;
 
 @Service
 @Transactional
@@ -66,26 +62,20 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 "email" // CHỐT HẠ: Luôn dùng email làm ID cho cả hai
         );
     }
-    
+
     private void processOAuth2User(String email, String name, String picture) {
-        // 1. CHỐNG LỖI NULL EMAIL: Nếu GitHub giấu email, lấy tạm name làm email giả định
         if (email == null || email.isEmpty()) {
-            // Tạo email tạm để không bị lỗi DB và logic bên dưới
             email = (name != null ? name.replaceAll("\\s+", "").toLowerCase() : "github_user") + "@github.com";
         }
 
         Optional<User> existUser = userRepository.findByEmail(email);
 
+        // Kiểm tra xem email này có phải là admin không
+        boolean isAdmin = email.equals("phuocthinhdang25@gmail.com");
+
         if (existUser.isEmpty()) {
             User newUser = new User();
-
-            // 2. XỬ LÝ USERNAME AN TOÀN
-            String customUsername;
-            if (email.contains("@")) {
-                customUsername = email.substring(0, email.indexOf("@"));
-            } else {
-                customUsername = email;
-            }
+            String customUsername = email.contains("@") ? email.substring(0, email.indexOf("@")) : email;
 
             newUser.setUsername(customUsername);
             newUser.setEmail(email);
@@ -94,8 +84,10 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             newUser.setPassword("");
             newUser.setActive(true);
 
-            // Cấp Role (như cũ)
-            roleRepository.findById(2L).ifPresent(role -> {
+            // Nếu là admin thì lấy ID 2, ngược lại lấy ID 1 cho user thường
+            Long roleId = isAdmin ? 2L : 1L;
+
+            roleRepository.findById(roleId).ifPresent(role -> {
                 Set<Role> roles = new HashSet<>();
                 roles.add(role);
                 newUser.setRoles(roles);
@@ -105,6 +97,12 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         } else {
             User user = existUser.get();
             user.setAvatarUrl(picture);
+
+            // Nếu là admin thì đảm bảo tài khoản cũ cũng được add thêm quyền admin (ID 2)
+            if (isAdmin) {
+                roleRepository.findById(2L).ifPresent(adminRole -> user.getRoles().add(adminRole));
+            }
+
             userRepository.save(user);
         }
     }

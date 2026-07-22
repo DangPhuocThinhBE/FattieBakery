@@ -94,6 +94,7 @@
             }
         </style>
     </th:block>
+    <title></title>
 </head>
 <body>
 <section class="container py-5">
@@ -120,7 +121,7 @@
 
     <!-- Thông báo nếu không có sản phẩm -->
     <div class="text-center py-5"
-         th:if="${products == null or products.content.empty}">
+         th:if="${products == null or #lists.isEmpty(products.content)}">
         <div style="font-size:70px;">🔍</div>
         <h4 class="text-muted mt-3">
             Chưa có sản phẩm.
@@ -129,7 +130,7 @@
 
     <!-- Danh sách sản phẩm -->
     <div class="row g-4"
-         th:if="${products != null and !products.content.empty}">
+         th:if="${products != null and !#lists.isEmpty(products.content)}">
         <div class="col-lg-3 col-md-4 col-sm-6"
              th:each="product : ${products.content}">
             <div class="card product-card">

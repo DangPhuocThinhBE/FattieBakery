@@ -28,6 +28,12 @@
 
             /* Background riêng cho phần danh mục */
             .bg-custom-cream { background-color: #F7F2EE; }
+
+            .price-tag {
+                color: var(--primary);
+                font-weight: 700;
+                font-size: 1.1rem;
+            }
         </style>
     </th:block>
 </head>
@@ -58,12 +64,13 @@
         <div class="container text-center">
             <h2 class="fw-bold mb-5">Danh Mục Sản Phẩm</h2>
             <div class="row g-4 justify-content-center">
-                <!-- Đảm bảo file ảnh nằm tại /images/banhkem.jpg, banhngot.jpg, ... -->
                 <div class="col-6 col-md-2" th:each="cat : ${ {'Bánh Kem', 'Bánh Ngọt', 'Bánh Mì', 'Panna Cotta', 'Trà Sữa', 'Trà Trái Cây'} }">
                     <div class="card category-card">
-                        <img th:src="@{'/images/' + ${cat.toLowerCase().replace(' ', '')} + '.jpg'}"
-                             th:alt="${cat}">
-                        <h6 th:text="${cat}"></h6>
+                        <a th:href="@{/shop(categoryName=${cat})}" class="text-decoration-none text-dark">
+                            <img th:src="@{'/images/' + ${cat.toLowerCase().replace(' ', '')} + '.jpg'}"
+                                 th:alt="${cat}">
+                            <h6 th:text="${cat}"></h6>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -79,19 +86,57 @@
             </div>
             <div class="row g-4">
                 <div class="col-lg-3 col-md-6" th:each="p : ${featuredProducts}">
-                    <div class="card h-100">
-                        <img th:src="${p.imageUrl}" class="card-img-top" style="height:260px; object-fit:cover; border-radius: 20px 20px 0 0;">
-                        <div class="card-body text-center">
-                            <h5 class="fw-bold" th:text="${p.name}"></h5>
-                            <p class="fw-bold fs-5" style="color: var(--primary);"
-                               th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')}+'đ'"></p>
-                            <button class="btn btn-danger w-100" th:onclick="|addToCart('${p.id}')|">Thêm vào giỏ</button>
+                    <div class="card h-100 p-3">
+                        <a th:href="@{/product/{id}(id=${p.id})}">
+                            <img th:src="${p.imageUrl}" class="card-img-top" style="height:240px; object-fit:cover; border-radius: 15px;">
+                        </a>
+                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                            <div>
+                                <h5 class="fw-bold text-dark" th:text="${p.name}"></h5>
+                                <p class="price-tag" th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')} + 'đ'"></p>
+                            </div>
+                            <button class="btn btn-danger w-100 mt-3" th:onclick="|addToCart(${p.id})|">
+                                <i class="fas fa-cart-plus me-2"></i> Thêm vào giỏ
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+
+    <script th:inline="javascript">
+        function addToCart(productId) {
+            const headerElement = document.querySelector('meta[name="_csrf_header"]');
+            const tokenElement = document.querySelector('meta[name="_csrf"]');
+
+            let headers = {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            };
+
+            if (headerElement && tokenElement) {
+                headers[headerElement.content] = tokenElement.content;
+            }
+
+            fetch('/api/cart/add', {
+                method: 'POST',
+                headers: headers,
+                body: `productId=${productId}&quantity=1`
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Đã thêm sản phẩm vào giỏ hàng thành công! 🛒");
+                    } else {
+                        alert("Có lỗi xảy ra, vui lòng thử lại!");
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi:", error);
+                    alert("Không thể kết nối tới server!");
+                });
+        }
+    </script>
 </section>
 </body>
 </html>

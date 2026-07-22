@@ -38,28 +38,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers(
-                "/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico", "/error"
-        );
-    }
-
-    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
     }
 
     @Bean
@@ -69,21 +49,37 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/", "/login", "/register", "/shop/**", "/product/**", "/search/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler((request, response, authentication) -> {
+                            boolean isAdmin = authentication.getAuthorities().stream()
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                            if (isAdmin) {
+                                response.sendRedirect("/admin/products");
+                            } else {
+                                response.sendRedirect("/");
+                            }
+                        })
                         .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
-                        // ĐÂY LÀ ĐOẠN QUAN TRỌNG ĐỂ LƯU USER VÀO DATABASE
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oauth2UserService)
                         )
-                        .defaultSuccessUrl("/", true)
+                        .successHandler((request, response, authentication) -> {
+                            boolean isAdmin = authentication.getAuthorities().stream()
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                            if (isAdmin) {
+                                response.sendRedirect("/admin/products"); // Google login thành công -> Admin vào đây
+                            } else {
+                                response.sendRedirect("/"); // User thường về trang chủ
+                            }
+                        })
                         .failureUrl("/login?error=oauth2_fail")
                 )
                 .logout(logout -> logout
@@ -94,4 +90,6 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
 }

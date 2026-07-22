@@ -67,7 +67,7 @@ public class UserService {
         user.setFullName(userDetails.getFullName());
         user.setPhone(userDetails.getPhone());
         user.setAddress(userDetails.getAddress());
-        user.setDateOfBirth(userDetails.getDateOfBirth()); // Đã có ngày sinh
+        user.setDateOfBirth(userDetails.getDateOfBirth());
 
         // 2. Xử lý File ảnh đại diện nếu có tải lên
         if (file != null && !file.isEmpty()) {
