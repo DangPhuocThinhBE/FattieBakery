@@ -44,5 +44,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Lấy tất cả sản phẩm đang active (User)
     Page<Product> findByActiveTrue(Pageable pageable);
 
-    
+
 }
