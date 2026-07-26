@@ -38,18 +38,21 @@
 </div>
 
 <div class="main-content">
-    <div class="topbar"><h5 class="mb-0 fw-bold text-uppercase" style="color:var(--logo-red);">🎫 ƯU ĐÃI TIỆC TRÀ</h5></div>
+    <div class="topbar"><h5 class="mb-0 fw-bold text-uppercase" style="color:var(--logo-red);"> ƯU ĐÃI TIỆC TRÀ</h5></div>
 
     <div class="row g-4">
+        <!-- FORM THÊM / SỬA MÃ GIẢM GIÁ -->
         <div class="col-md-4">
             <div class="card p-4">
                 <h6 class="fw-bold mb-3" id="formTitle"><i class="fas fa-plus-circle me-2" style="color:var(--logo-red);"></i>Thiết lập ưu đãi mới</h6>
                 <form th:action="@{/admin/discounts/save}" th:object="${discount}" method="post" id="discountForm">
                     <input type="hidden" th:field="*{id}" id="discountId"/>
+
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Mã Ưu Đãi</label>
                         <input type="text" class="form-control" th:field="*{code}" id="discountCode" required style="text-transform:uppercase;"/>
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Loại Ưu Đãi</label>
                         <select class="form-select" th:field="*{discountType}" id="discountType">
@@ -57,27 +60,49 @@
                             <option value="FIXED_AMOUNT">Số tiền (đ)</option>
                         </select>
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Giá Trị</label>
-                        <input type="number" class="form-control" th:field="*{discountValue}" id="discountValue" required/>
+                        <input type="number" step="0.01" class="form-control" th:field="*{discountValue}" id="discountValue" required/>
                     </div>
+
+                    <!-- Bổ sung input Thời gian bắt đầu -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Thời gian bắt đầu</label>
+                        <input type="datetime-local" class="form-control" th:field="*{startDate}" id="discountStartDate"/>
+                    </div>
+
+                    <!-- Bổ sung input Thời gian kết thúc -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Thời gian kết thúc (Hạn dùng)</label>
+                        <input type="datetime-local" class="form-control" th:field="*{endDate}" id="discountEndDate"/>
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Để trống nếu muốn mã có hiệu lực vô thời hạn.</div>
+                    </div>
+
                     <button type="submit" class="btn btn-bakery w-100 py-2">Lưu Mã Ưu Đãi</button>
                 </form>
             </div>
         </div>
 
+        <!-- BẢNG DANH SÁCH MÃ GIẢM GIÁ -->
         <div class="col-md-8">
             <div class="card">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead>
-                        <tr><th>Mã</th><th>Giảm</th><th>Hạn dùng</th><th>Trạng thái</th><th>Thao tác</th></tr>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Giảm</th>
+                            <th>Hạn dùng</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
                         </thead>
                         <tbody>
                         <tr th:each="d : ${discounts}">
                             <td class="align-middle"><span class="code-badge" th:text="${d.code}"></span></td>
                             <td class="align-middle fw-bold" th:text="${d.discountType == 'PERCENTAGE' ? d.discountValue + '%' : d.discountValue + 'đ'}"></td>
-                            <td class="align-middle small" th:text="${d.endDate != null ? #temporals.format(d.endDate, 'dd/MM/yyyy') : 'Vô thời hạn'}"></td>
+                            <td class="align-middle small" th:text="${d.endDate != null ? #temporals.format(d.endDate, 'dd/MM/yyyy HH:mm') : 'Vô thời hạn'}"></td>
                             <td class="align-middle">
                                 <span th:class="${d.active ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${d.active ? 'Đang chạy' : 'Đã ẩn'}"></span>
                             </td>
@@ -87,6 +112,8 @@
                                         th:data-code="${d.code}"
                                         th:data-type="${d.discountType}"
                                         th:data-value="${d.discountValue}"
+                                        th:data-start="${d.startDate != null ? #temporals.format(d.startDate, 'yyyy-MM-dd') + 'T' + #temporals.format(d.startDate, 'HH:mm') : ''}"
+                                        th:data-end="${d.endDate != null ? #temporals.format(d.endDate, 'yyyy-MM-dd') + 'T' + #temporals.format(d.endDate, 'HH:mm') : ''}"
                                         onclick="handleEdit(this)">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -107,6 +134,8 @@
         document.getElementById('discountCode').value = btn.getAttribute('data-code');
         document.getElementById('discountType').value = btn.getAttribute('data-type');
         document.getElementById('discountValue').value = btn.getAttribute('data-value');
+        document.getElementById('discountStartDate').value = btn.getAttribute('data-start') || '';
+        document.getElementById('discountEndDate').value = btn.getAttribute('data-end') || '';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>

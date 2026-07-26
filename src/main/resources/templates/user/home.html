@@ -2,6 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{fragments/layout :: main_layout(~{::section}, 'Trang Chủ', ~{::extraStyles})}">
 <head>
+    <title>Trang Chủ - Fattie Bakery</title>
     <th:block th:fragment="extraStyles">
         <style>
             /* 1. Tông màu sang trọng */
@@ -52,24 +53,26 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600"
+                    <img src="https://res.cloudinary.com/gtf3svkg/image/upload/v1784975264/banner-fattieshop_afmtfd.jpg"
                          class="img-fluid rounded shadow-lg" alt="Cake">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- DANH MỤC (Ảnh thực tế) -->
+    <!-- DANH MỤC (Lấy động từ Database & Cloudinary) -->
     <section class="py-5 bg-custom-cream">
         <div class="container text-center">
             <h2 class="fw-bold mb-5">Danh Mục Sản Phẩm</h2>
             <div class="row g-4 justify-content-center">
-                <div class="col-6 col-md-2" th:each="cat : ${ {'Bánh Kem', 'Bánh Ngọt', 'Bánh Mì', 'Panna Cotta', 'Trà Sữa', 'Trà Trái Cây'} }">
+                <!-- Duyệt qua biến categories từ Controller truyền sang -->
+                <div class="col-6 col-md-2" th:each="cat : ${categories}">
                     <div class="card category-card">
-                        <a th:href="@{/shop(categoryName=${cat})}" class="text-decoration-none text-dark">
-                            <img th:src="@{'/images/' + ${cat.toLowerCase().replace(' ', '')} + '.jpg'}"
-                                 th:alt="${cat}">
-                            <h6 th:text="${cat}"></h6>
+                        <!-- Trỏ link sang trang shop kèm id danh mục -->
+                        <a th:href="@{/shop(category=${cat.id})}" class="text-decoration-none text-dark">
+                            <!-- Lấy trực tiếp link ảnh Cloudinary từ cột imageUrl trong DB -->
+                            <img th:src="${cat.imageUrl}" th:alt="${cat.name}">
+                            <h6 th:text="${cat.name}"></h6>
                         </a>
                     </div>
                 </div>
@@ -81,14 +84,14 @@
     <section class="py-5">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">🍰 Sản Phẩm Nổi Bật</h2>
+                <h2 class="fw-bold"> Sản Phẩm Nổi Bật</h2>
                 <a href="/shop" class="btn btn-outline-dark">Xem tất cả</a>
             </div>
             <div class="row g-4">
                 <div class="col-lg-3 col-md-6" th:each="p : ${featuredProducts}">
                     <div class="card h-100 p-3">
                         <a th:href="@{/product/{id}(id=${p.id})}">
-                            <img th:src="${p.imageUrl}" class="card-img-top" style="height:240px; object-fit:cover; border-radius: 15px;">
+                            <img th:src="${p.imageUrl}" th:alt="${p.name}" class="card-img-top" style="height:240px; object-fit:cover; border-radius: 15px;">
                         </a>
                         <div class="card-body text-center d-flex flex-column justify-content-between">
                             <div>

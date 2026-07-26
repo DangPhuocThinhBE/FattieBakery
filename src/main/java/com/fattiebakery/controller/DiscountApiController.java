@@ -68,7 +68,7 @@ public class DiscountApiController {
             response.put("message", "Đơn hàng chưa đạt giá trị tối thiểu (" + discount.getMinimumOrderAmount() + "đ) để dùng mã này!");
             return ResponseEntity.ok(response);
         }
-// 3. Kiểm tra số lần sử dụng tối đa (maxUsageCount)
+        // 3. Kiểm tra số lần sử dụng tối đa (maxUsageCount)
         if (discount.getMaxUsageCount() != null && discount.getCurrentUsageCount() != null
         && discount.getCurrentUsageCount() >= discount.getMaxUsageCount()) {
         response.put("success", false);

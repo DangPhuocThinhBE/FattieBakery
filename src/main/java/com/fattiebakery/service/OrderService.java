@@ -40,7 +40,7 @@ public class OrderService {
         BigDecimal totalAmount = cartService.getCartTotal(cartItems);
 
         Order order = new Order();
-        order.setOrderCode("KF" + System.currentTimeMillis());
+        order.setOrderCode("FT" + System.currentTimeMillis());
         order.setUser(user);
         order.setCustomerName(customerName);
         order.setCustomerEmail(customerEmail);
@@ -81,11 +81,14 @@ public class OrderService {
 
     // ==================== ADMIN & DASHBOARD ====================
 
-    public Page<Order> adminSearchOrders(String statusStr, String keyword, int page, int size) {
+    // Đã đổi lại thứ tự tham số khớp với Controller: (keyword, statusStr, page, size)
+    public Page<Order> adminSearchOrders(String keyword, String statusStr, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Order.OrderStatus status = null;
-        if (statusStr != null && !statusStr.isEmpty()) {
-            try { status = Order.OrderStatus.valueOf(statusStr); } catch (Exception ignored) {}
+        if (statusStr != null && !statusStr.trim().isEmpty()) {
+            try {
+                status = Order.OrderStatus.valueOf(statusStr.trim());
+            } catch (Exception ignored) {}
         }
         return orderRepository.searchOrders(status, keyword, pageable);
     }
@@ -103,6 +106,11 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng ID: " + id));
         order.setStatus(orderStatus);
         orderRepository.save(order);
+    }
+
+    // Bổ sung hàm save tổng quát nếu cần dùng ở AdminController
+    public Order save(Order order) {
+        return orderRepository.save(order);
     }
 
     public Optional<Order> findById(Long id) {
@@ -133,11 +141,9 @@ public class OrderService {
     public Map<String, Object> getStatisticsByDateRange(LocalDate startDate, LocalDate endDate) {
         Map<String, Object> stats = new HashMap<>();
 
-        // Nếu chưa chọn ngày, mặc định lấy 30 ngày gần nhất
         if (startDate == null) startDate = LocalDate.now().minusDays(30);
         if (endDate == null) endDate = LocalDate.now();
 
-        // Chuyển đổi LocalDate thành LocalDateTime quét trọn vẹn từ 00:00:00 đến 23:59:59
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
 

@@ -55,7 +55,6 @@ public class AdminController {
 
     // ==================== PRODUCTS ====================
 
-    // 1. Trang danh sách sản phẩm
     @GetMapping("/products")
     public String products(@RequestParam(required = false) String name,
                            @RequestParam(required = false) Long categoryId,
@@ -66,28 +65,25 @@ public class AdminController {
         return "admin/products";
     }
 
-    // 2. Form tạo mới sản phẩm
     @GetMapping("/products/new")
     public String newProductForm(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("categories", categoryService.getAllCategories());
-        return "admin/product-form"; // Trả về file product-fomr.html
+        return "admin/product-form";
     }
 
-    // 3. Form chỉnh sửa sản phẩm
     @GetMapping("/products/edit/{id}")
     public String editProductForm(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         return productService.getProductById(id).map(product -> {
             model.addAttribute("product", product);
             model.addAttribute("categories", categoryService.getAllCategories());
-            return "admin/product-form"; // Trả về file product-fomr.html
+            return "admin/product-form";
         }).orElseGet(() -> {
             ra.addFlashAttribute("error", "Không tìm thấy sản phẩm!");
             return "redirect:/admin/products";
         });
     }
 
-    // 4. Xử lý lưu sản phẩm (Thêm mới hoặc Cập nhật)
     @PostMapping("/products/save")
     public String saveProduct(@ModelAttribute("product") Product product,
                               @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
@@ -101,7 +97,6 @@ public class AdminController {
         return "redirect:/admin/products";
     }
 
-    // 5. Xử lý xóa sản phẩm
     @PostMapping("/products/delete/{id}")
     public String deleteProduct(@PathVariable("id") Long id, RedirectAttributes ra) {
         try {
@@ -113,28 +108,23 @@ public class AdminController {
         return "redirect:/admin/products";
     }
 
-    // ==================== CATEGORIES  ====================
+    // ==================== CATEGORIES ====================
 
-    // 1. Hiển thị danh sách
     @GetMapping("/categories")
     public String listCategories(Model model) {
-        // 1. Lấy dữ liệu cho sidebar/header thống kê
         Map<String, Object> stats = orderService.getDashboardStats();
         if (stats == null) stats = new java.util.HashMap<>();
         stats.putIfAbsent("monthRevenue", 0.0);
         stats.putIfAbsent("totalOrders", 0L);
 
-        // 2. Truyền vào model để các trang dùng chung (layout) không bị lỗi
         model.addAttribute("stats", stats);
         model.addAttribute("lowStockProducts", productService.getLowStockProducts());
-        // 3. Dữ liệu chính cho trang Categories
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("category", new Category());
 
         return "admin/categories";
     }
 
-    // 2. Xử lý lưu (Thêm mới hoặc Cập nhật)
     @PostMapping("/categories/save")
     public String saveCategory(@ModelAttribute("category") Category category, RedirectAttributes ra) {
         try {
@@ -146,7 +136,6 @@ public class AdminController {
         return "redirect:/admin/categories";
     }
 
-    // 3. Xử lý sửa (Dùng cho nút Edit)
     @GetMapping("/categories/edit/{id}")
     public String editCategory(@PathVariable Long id, Model model, RedirectAttributes ra) {
         return categoryService.getCategoryById(id).map(c -> {
@@ -159,7 +148,6 @@ public class AdminController {
         });
     }
 
-    // 4. Xử lý xóa
     @PostMapping("/categories/delete/{id}")
     public String deleteCategory(@PathVariable Long id, RedirectAttributes ra) {
         try {
@@ -171,7 +159,7 @@ public class AdminController {
         return "redirect:/admin/categories";
     }
 
-    // ==================== USERS ====================
+    // ==================== USERS MANAGEMENT ====================
     @GetMapping("/users")
     public String users(@RequestParam(required = false) String keyword,
                         @RequestParam(defaultValue = "0") int page,
@@ -180,35 +168,41 @@ public class AdminController {
         return "admin/users";
     }
 
-    // ==================== ORDERS ====================
-    @GetMapping("/orders")
-    public String orders(@RequestParam(defaultValue = "0") int page, Model model) {
-        // Đã sửa thành org.springframework.data.domain.Page
-        Page<Order> orderPage = (Page<Order>) orderService.adminSearchOrders(null, null, page, 10);
-        model.addAttribute("orders", orderPage);
-        return "admin/orders";
+    @PostMapping("/users/toggle/{id}")
+    public String toggleUserStatus(@PathVariable("id") Long id, RedirectAttributes ra) {
+        try {
+            userService.toggleUserStatus(id);
+            ra.addFlashAttribute("success", "Thay đổi trạng thái tài khoản thành công!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
     }
 
-    // ==================== STATISTICS ====================
-    @GetMapping("/statistics")
-    public String statistics(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+    @PostMapping("/users/role/{id}")
+    public String toggleUserRole(@PathVariable("id") Long id, RedirectAttributes ra) {
+        try {
+            userService.toggleUserRole(id);
+            ra.addFlashAttribute("success", "Cập nhật quyền thành công!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Lỗi phân quyền: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
+    // ==================== ORDERS ====================
+    @GetMapping("/orders")
+    public String adminOrders(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
             Model model) {
 
-        Map<String, Object> stats = orderService.getStatisticsByDateRange(startDate, endDate);
-
-        // Bổ sung các thông tin phụ trợ cho giao diện báo cáo doanh thu
-        model.addAttribute("totalProducts", productService.countActiveProducts());
-        model.addAttribute("totalUsers", userService.countActiveUsers());
-
-        // Format định dạng tiền tệ tổng doanh thu ra chuỗi hiển thị đẹp mắt
-        BigDecimal totalRev = (BigDecimal) stats.get("totalRevenue");
-        model.addAttribute("revenueFormatted", totalRev != null ?
-                String.format("%,d", totalRev.longValue()).replace(',', '.') : "0");
-
-        model.addAttribute("stats", stats);
-        return "admin/statistics";
+        Page<Order> orderPage = orderService.adminSearchOrders(keyword, status, page, 20);
+        model.addAttribute("orders", orderPage);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("statusFilter", status);
+        return "admin/orders";
     }
 
     @GetMapping("/orders/{id}")
@@ -220,20 +214,53 @@ public class AdminController {
         }).orElse("redirect:/admin/orders");
     }
 
+    // Cập nhật trạng thái đơn hàng từ trang chi tiết
+    @PostMapping("/orders/{id}/status")
+    public String updateOrderStatus(@PathVariable("id") Long id,
+                                    @RequestParam("status") Order.OrderStatus status,
+                                    RedirectAttributes ra) {
+        try {
+            Order order = orderService.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+            order.setStatus(status);
+            orderService.save(order); // hoặc hàm save/update tương ứng trong OrderService của bạn
+            ra.addFlashAttribute("success", "Cập nhật trạng thái đơn hàng thành công!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Lỗi cập nhật trạng thái: " + e.getMessage());
+        }
+        return "redirect:/admin/orders";
+    }
 
-    @GetMapping
+    // ==================== STATISTICS ====================
+    @GetMapping("/statistics")
+    public String statistics(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
+
+        Map<String, Object> stats = orderService.getStatisticsByDateRange(startDate, endDate);
+
+        model.addAttribute("totalProducts", productService.countActiveProducts());
+        model.addAttribute("totalUsers", userService.countActiveUsers());
+
+        BigDecimal totalRev = (BigDecimal) stats.get("totalRevenue");
+        model.addAttribute("revenueFormatted", totalRev != null ?
+                String.format("%,d", totalRev.longValue()).replace(',', '.') : "0");
+
+        model.addAttribute("stats", stats);
+        return "admin/statistics";
+    }
+
+    /*// ==================== DISCOUNTS ====================
+    @GetMapping("/discounts")
     public String viewDiscountsPage(Model model) {
-        // Khớp với hàm getAllDiscountCodes() trong Service của bạn
         model.addAttribute("discounts", discountCodeService.getAllDiscountCodes());
         model.addAttribute("discount", new DiscountCode());
         return "admin/discounts";
     }
 
-    @PostMapping("/save")
+    @PostMapping("/discounts/save")
     public String saveDiscount(@ModelAttribute("discount") DiscountCode discountCode) {
-        // Khớp với hàm save() trong Service của bạn
         discountCodeService.save(discountCode);
         return "redirect:/admin/discounts";
-    }
+    }*/
 }
-

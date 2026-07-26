@@ -112,6 +112,22 @@ public class UserService {
         });
     }
 
+    // Thêm hàm chuyển đổi quyền Quản trị / Thành viên
+    public void toggleUserRole(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng ID: " + id));
+
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
+                .orElseThrow(() -> new RuntimeException("Role ROLE_ADMIN không tồn tại trong hệ thống"));
+
+        if (user.getRoles().contains(adminRole)) {
+            user.getRoles().remove(adminRole); // Đang là Admin -> Gỡ xuống thành viên
+        } else {
+            user.getRoles().add(adminRole);    // Đang là thành viên -> Cấp quyền Admin
+        }
+
+        userRepository.save(user);
+    }
+
     public long countActiveUsers() { return userRepository.countByActiveTrue(); }
     public long countAllUsers() { return userRepository.count(); }
     public User saveUser(User user) { return userRepository.save(user); }

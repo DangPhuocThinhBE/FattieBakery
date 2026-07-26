@@ -16,7 +16,7 @@ public class EmailService {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
-        message.setFrom("fattiebakery@gmail.com"); // Thay bằng email cửa hàng của bác
+        message.setFrom("phuocthinhdang25@gmail.com");
         mailSender.send(message);
     }
 }

@@ -32,15 +32,18 @@ public class HomeController {
     @GetMapping("/shop")
     public String shop(@RequestParam(required = false) Long category,
                        @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "8") int size, // Nhận thêm tham số size, mặc định là 12
                        Model model) {
-        int size = 12;
+
         if (category != null) {
             model.addAttribute("products", productService.getProductsByCategory(category, page, size));
             model.addAttribute("selectedCategory", categoryService.getCategoryById(category).orElse(null));
         } else {
             model.addAttribute("products", productService.getAllActiveProducts(page, size));
         }
+
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size); // Truyền ngược biến size ra View để giữ trạng thái select option
         return "user/shop";
     }
 
@@ -69,8 +72,10 @@ public class HomeController {
     // Các trang tĩnh (Story, About, Contact)
     @GetMapping({"/story", "/about", "/contact"})
     public String staticPages(jakarta.servlet.http.HttpServletRequest request) {
-        // Lấy đường dẫn cuối (ví dụ: "/story" -> "user/story")
         String path = request.getRequestURI().replace("/", "");
+        if (path.isEmpty()) {
+            return "redirect:/";
+        }
         return "user/" + path;
     }
 }
