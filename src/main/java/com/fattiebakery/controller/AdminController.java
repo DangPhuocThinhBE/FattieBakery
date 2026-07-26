@@ -248,8 +248,8 @@ public class AdminController {
         return "admin/statistics";
     }
 
-    /*// ==================== DISCOUNTS ====================
-    @GetMapping("/discounts")
+    // ==================== DISCOUNTS ====================
+    /*@GetMapping("/discounts")
     public String viewDiscountsPage(Model model) {
         model.addAttribute("discounts", discountCodeService.getAllDiscountCodes());
         model.addAttribute("discount", new DiscountCode());
@@ -257,8 +257,25 @@ public class AdminController {
     }
 
     @PostMapping("/discounts/save")
-    public String saveDiscount(@ModelAttribute("discount") DiscountCode discountCode) {
-        discountCodeService.save(discountCode);
+    public String saveDiscount(@ModelAttribute("discount") DiscountCode discountCode, RedirectAttributes ra) {
+        try {
+            discountCodeService.save(discountCode);
+            ra.addFlashAttribute("success", "Lưu mã ưu đãi thành công!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Lỗi lưu mã: " + e.getMessage());
+        }
         return "redirect:/admin/discounts";
     }*/
+
+    // THÊM HÀM XÓA NÀY ĐỂ KHẮC PHỤC LỖI 404:
+    @PostMapping("/discounts/delete/{id}")
+    public String deleteDiscount(@PathVariable("id") Long id, RedirectAttributes ra) {
+        try {
+            discountCodeService.delete(id); // Hoặc tên hàm xóa tương ứng trong service của bạn
+            ra.addFlashAttribute("success", "Đã xóa mã ưu đãi!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Không thể xóa mã ưu đãi này!");
+        }
+        return "redirect:/admin/discounts";
+    }
 }

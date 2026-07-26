@@ -101,13 +101,14 @@
                         <tbody>
                         <tr th:each="d : ${discounts}">
                             <td class="align-middle"><span class="code-badge" th:text="${d.code}"></span></td>
-                            <td class="align-middle fw-bold" th:text="${d.discountType == 'PERCENTAGE' ? d.discountValue + '%' : d.discountValue + 'đ'}"></td>
+                            <td class="align-middle fw-bold" th:text="${d.discountType == 'PERCENTAGE' ? d.discountValue + '%' : #numbers.formatDecimal(d.discountValue,0,'COMMA',0,'POINT') + 'đ'}"></td>
                             <td class="align-middle small" th:text="${d.endDate != null ? #temporals.format(d.endDate, 'dd/MM/yyyy HH:mm') : 'Vô thời hạn'}"></td>
                             <td class="align-middle">
                                 <span th:class="${d.active ? 'badge bg-success' : 'badge bg-secondary'}" th:text="${d.active ? 'Đang chạy' : 'Đã ẩn'}"></span>
                             </td>
                             <td class="align-middle">
-                                <button type="button" class="btn btn-sm btn-outline-dark"
+                                <!-- Nút Chỉnh sửa -->
+                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 me-1"
                                         th:data-id="${d.id}"
                                         th:data-code="${d.code}"
                                         th:data-type="${d.discountType}"
@@ -117,7 +118,18 @@
                                         onclick="handleEdit(this)">
                                     <i class="fas fa-edit"></i>
                                 </button>
+
+                                <!-- Nút Xóa (Dùng form POST có hỏi xác nhận) -->
+                                <form th:action="@{/admin/discounts/delete/{id}(id=${d.id})}" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa mã ưu đãi này không?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-0">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
                             </td>
+                        </tr>
+                        <!-- Thông báo nếu danh sách trống -->
+                        <tr th:if="${discounts.isEmpty()}">
+                            <td colspan="5" class="text-center py-4">Chưa có mã ưu đãi nào được tạo.</td>
                         </tr>
                         </tbody>
                     </table>
