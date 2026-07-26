@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling; // 1. Import thư viện này vào
 
 @SpringBootApplication
-@EnableScheduling // 2. Thêm dòng này vào ngay trên tên class chính
+@EnableScheduling
 public class FattieBakeryApplication {
 
     public static void main(String[] args) {

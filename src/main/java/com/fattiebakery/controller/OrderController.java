@@ -5,7 +5,6 @@ import com.fattiebakery.model.User;
 import com.fattiebakery.service.OrderService;
 import com.fattiebakery.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,7 +27,7 @@ public class OrderController {
         return userService.findByUsername(auth.getName()).orElse(null);
     }
 
-    // 1. Danh sách đơn hàng của tôi
+    // 1. Danh sách đơn hàng của tôi (Dành cho khách hàng)
     @GetMapping
     public String myOrders(Model model, Authentication auth) {
         User user = getCurrentUser(auth);
@@ -36,23 +35,12 @@ public class OrderController {
             return "redirect:/login";
         }
 
-        // Lấy danh sách từ Service
         List<Order> orders = orderService.getUserOrders(user.getId());
-
-        // Truyền vào model để hiển thị trong HTML
         model.addAttribute("orders", orders);
         return "user/my-orders";
     }
 
-    @GetMapping("/orders")
-    public String orders(@RequestParam(defaultValue = "0") int page, Model model) {
-        // Không ép kiểu thủ công nếu không cần thiết, hoặc khai báo Page cụ thể
-        Page<Order> orderPage = orderService.adminSearchOrders(null, null, page, 10);
-        model.addAttribute("orders", orderPage);
-        return "admin/orders";
-    }
-
-    // 2. Xem chi tiết đơn hàng
+    // 2. Xem chi tiết đơn hàng cá nhân
     @GetMapping("/{orderCode}")
     public String orderDetail(@PathVariable String orderCode,
                               Model model,
@@ -68,7 +56,6 @@ public class OrderController {
         if (orderOpt.isPresent()) {
             Order order = orderOpt.get();
 
-            // Kiểm tra bảo mật: Chỉ cho phép chủ nhân đơn hàng xem
             if (!order.getUser().getId().equals(user.getId())) {
                 ra.addFlashAttribute("error", "Bạn không có quyền xem đơn hàng này!");
                 return "redirect:/orders";

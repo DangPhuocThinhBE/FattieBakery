@@ -42,11 +42,11 @@ public class Product {
     @Column(length = 50)
     private String size;
 
-    @Column(length = 50)
-    private String color;
-
-    @Column(name = "age_range", length = 50)
-    private String ageRange;
+//    @Column(length = 50)
+//    private String color;
+//
+//    @Column(name = "age_range", length = 50)
+//    private String ageRange;
 
     @Column(nullable = false)
     private Boolean active = true;

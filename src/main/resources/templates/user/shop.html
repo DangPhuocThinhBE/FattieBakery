@@ -74,7 +74,6 @@
                 flex-grow: 1;
             }
 
-            /* Tùy chỉnh màu sắc phân trang chuẩn Bootstrap */
             .pagination .page-link {
                 color: var(--primary);
                 border-radius: 8px;
@@ -94,24 +93,36 @@
             }
         </style>
     </th:block>
-    <title></title>
+    <title>Cửa Hàng</title>
 </head>
 <body>
 <section class="container py-5">
-    <!-- Header danh mục -->
-    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap">
-        <h2 class="fw-bold">
-            🛍️ Khám Phá Cửa Hàng
+    <!-- Header danh mục kết hợp bộ chọn số lượng hiển thị -->
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+        <h2 class="fw-bold m-0">
+            Khám Phá Cửa Hàng
         </h2>
+
+        <!-- Dropdown cho phép người dùng thay đổi số lượng sản phẩm hiển thị -->
+        <div class="d-flex align-items-center gap-2">
+            <label for="pageSizeSelect" class="form-label mb-0 fw-semibold text-muted">Hiển thị:</label>
+            <select id="pageSizeSelect" class="form-select form-select-sm rounded-pill px-3" style="width: 90px;" onchange="changePageSize(this)">
+                <option value="8" th:selected="${size == 8}">8</option>
+                <option value="12" th:selected="${size == 12}">12</option>
+                <option value="24" th:selected="${size == 24}">24</option>
+                <option value="36" th:selected="${size == 36}">36</option>
+            </select>
+        </div>
+
         <div class="d-flex flex-wrap gap-2">
-            <a th:href="@{/shop}"
+            <a th:href="@{/shop(size=${size})}"
                class="category-chip"
                th:classappend="${selectedCategory == null}? ' active'">
                 Tất cả
             </a>
 
             <a th:each="cat : ${categories}"
-               th:href="@{/shop(category=${cat.id})}"
+               th:href="@{/shop(category=${cat.id}, size=${size})}"
                th:text="${cat.name}"
                class="category-chip"
                th:classappend="${selectedCategory != null and selectedCategory.id == cat.id}? ' active'">
@@ -161,13 +172,13 @@
         </div>
     </div>
 
-    <!-- THANH PHÂN TRANG (PAGINATION) -->
+    <!-- THANH PHÂN TRANG (PAGINATION) CÓ GIỮ THAM SỐ SIZE -->
     <nav th:if="${products != null and products.totalPages > 1}" class="mt-5" aria-label="Page navigation">
         <ul class="pagination justify-content-center">
             <!-- Nút Previous -->
             <li class="page-item" th:classappend="${products.first} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/shop(page=${products.number - 1}, category=${selectedCategory != null ? selectedCategory.id : null})}">
+                   th:href="@{/shop(page=${products.number - 1}, category=${selectedCategory != null ? selectedCategory.id : null}, size=${size})}">
                     <i class="fas fa-chevron-left"></i> Trước
                 </a>
             </li>
@@ -177,14 +188,14 @@
                 th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}"
                 th:classappend="${i == products.number} ? 'active'">
                 <a class="page-link"
-                   th:href="@{/shop(page=${i}, category=${selectedCategory != null ? selectedCategory.id : null})}"
+                   th:href="@{/shop(page=${i}, category=${selectedCategory != null ? selectedCategory.id : null}, size=${size})}"
                    th:text="${i + 1}">1</a>
             </li>
 
             <!-- Nút Next -->
             <li class="page-item" th:classappend="${products.last} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/shop(page=${products.number + 1}, category=${selectedCategory != null ? selectedCategory.id : null})}">
+                   th:href="@{/shop(page=${products.number + 1}, category=${selectedCategory != null ? selectedCategory.id : null}, size=${size})}">
                     Sau <i class="fas fa-chevron-right"></i>
                 </a>
             </li>
@@ -192,7 +203,7 @@
     </nav>
 </section>
 
-<!-- SCRIPT GỬI NGẦM FORM THÊM GIỎ HÀNG -->
+<!-- SCRIPT XỬ LÝ GIỎ HÀNG VÀ THAY ĐỔI SỐ LƯỢNG TRANG -->
 <script>
     function submitAddToCart(event, formElement) {
         event.preventDefault();
@@ -219,6 +230,16 @@
                 console.error('Lỗi kết nối:', error);
                 alert('Không thể kết nối đến máy chủ!');
             });
+    }
+
+    function changePageSize(select) {
+        const newSize = select.value;
+        const urlParams = new URLSearchParams(window.location.search);
+
+        urlParams.set('size', newSize);
+        urlParams.set('page', '0'); // Reset về trang đầu khi thay đổi kích thước hiển thị
+
+        window.location.href = window.location.pathname + '?' + urlParams.toString();
     }
 </script>
 </body>

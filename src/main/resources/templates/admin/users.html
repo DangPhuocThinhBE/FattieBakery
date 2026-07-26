@@ -49,7 +49,7 @@
 
 <div class="main-content">
     <div class="topbar">
-        <h5 class="mb-0 fw-bold font-playfair" style="color: var(--logo-red);">👥 QUẢN LÝ KHÁCH HÀNG</h5>
+        <h5 class="mb-0 fw-bold font-playfair" style="color: var(--logo-red);"> QUẢN LÝ KHÁCH HÀNG</h5>
     </div>
 
     <div class="card mb-4 p-3">
@@ -97,14 +97,23 @@
                                   th:text="${u.active ? 'Hoạt động' : 'Đã khóa'}"></span>
                     </td>
                     <td class="align-middle">
-                        <form th:action="@{/admin/users/toggle/{id}(id=${u.id})}" method="post">
-                            <!-- Token bảo mật CSRF giúp vượt qua lỗi xác thực POST -->
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- 1. Form khóa / mở khóa tài khoản -->
+                            <form th:action="@{/admin/users/toggle/{id}(id=${u.id})}" method="post" class="mb-0">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn btn-sm btn-outline-dark rounded-0" th:title="${u.active ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}">
+                                    <i th:class="${u.active ? 'fas fa-lock' : 'fas fa-unlock'}"></i>
+                                </button>
+                            </form>
 
-                            <button type="submit" class="btn btn-sm btn-outline-dark rounded-0" title="Khóa/Mở khóa tài khoản">
-                                <i th:class="${u.active ? 'fas fa-lock' : 'fas fa-unlock'}"></i>
-                            </button>
-                        </form>
+                            <!-- 2. Form cấp / gỡ quyền Quản trị (ROLE_ADMIN) -->
+                            <form th:action="@{/admin/users/role/{id}(id=${u.id})}" method="post" class="mb-0">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-0" title="Chuyển đổi quyền Quản trị / Thành viên">
+                                    <i class="fas fa-user-shield"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 </tbody>

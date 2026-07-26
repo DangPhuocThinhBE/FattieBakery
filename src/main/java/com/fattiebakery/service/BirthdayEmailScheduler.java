@@ -19,7 +19,9 @@ public class BirthdayEmailScheduler {
     private EmailService emailService;
 
     // Hàm này sẽ tự động chạy vào lúc 00:00 sáng mỗi ngày
-    @Scheduled(cron = "0 0 0  * * *")
+    /*@Scheduled(cron = "0 0 0  * * *")*/
+    //Hàm này tự động quét danh sách khách hàng mỗi phút 1 lần
+    @Scheduled(cron = "0 * * * * *")
     public void sendBirthdayGreetings() {
         LocalDate today = LocalDate.now();
         int day = today.getDayOfMonth();
@@ -27,19 +29,26 @@ public class BirthdayEmailScheduler {
 
         System.out.println("===> Đang quét danh sách khách hàng sinh nhật ngày: " + day + "/" + month);
 
-        // 👉 Sửa lại tên hàm cho đúng với UserRepository vừa viết
+        // Sửa lại tên hàm cho đúng với UserRepository vừa viết
         List<User> birthdayUsers = userRepository.findByDayAndMonthOfBirth(day, month);
 
         for (User user : birthdayUsers) {
             if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-                String subject = "🎁 Chúc mừng sinh nhật từ Fattie Bakery!";
-                String content = "Chào " + (user.getFullName() != null ? user.getFullName() : "quý khách") +
-                        ",\n\nFattie Bakery chúc bạn có một ngày sinh nhật thật ngọt ngào và hạnh phúc! " +
-                        "Món quà nhỏ gửi tặng bạn là mã giảm giá 20% cho đơn hàng hôm nay tại tiệm.";
+                String customerName = (user.getFullName() != null ? user.getFullName() : "quý khách");
+
+                // Dùng chung một mã cố định đã thiết lập sẵn bên Admin
+                String fixedCouponCode = "SINHNHAT20";
+
+                String subject = " Chúc mừng sinh nhật từ Fattie Bakery!";
+                String content = "Chào " + customerName + ",\n\n" +
+                        "Fattie Bakery chúc bạn có một ngày sinh nhật thật ngọt ngào và hạnh phúc!\n" +
+                        "Món quà nhỏ gửi tặng bạn là mã giảm giá 20% độc quyền dành riêng cho bạn trong hôm nay.\n\n" +
+                        "Mã ưu đãi của bạn: " + fixedCouponCode + "\n\n" +
+                        "Hãy nhập mã này tại bước thanh toán trên website để nhận ưu đãi nhé!";
 
                 try {
                     emailService.sendEmail(user.getEmail(), subject, content);
-                    System.out.println("===> Đã gửi email chúc mừng sinh nhật tới: " + user.getEmail());
+                    System.out.println("===> Đã gửi email chúc mừng sinh nhật kèm mã cố định tới: " + user.getEmail());
                 } catch (Exception e) {
                     System.out.println("===> Lỗi gửi email cho " + user.getEmail() + ": " + e.getMessage());
                 }

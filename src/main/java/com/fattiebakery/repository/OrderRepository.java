@@ -23,12 +23,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Page<Order> findByStatus(Order.OrderStatus status, Pageable pageable);
 
-    // Tìm kiếm đơn hàng theo trạng thái hoặc từ khóa (code, tên, sđt)
+    // Đã thêm ORDER BY o.id DESC để đơn mới nhất lên đầu và xử lý an toàn tham số status dạng String/Enum
     @Query("SELECT o FROM Order o WHERE " +
             "(:status IS NULL OR o.status = :status) AND " +
-            "(:keyword IS NULL OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%',:keyword,'%')) " +
+            "(:keyword IS NULL OR :keyword = '' OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%',:keyword,'%')) " +
             "OR LOWER(o.customerName) LIKE LOWER(CONCAT('%',:keyword,'%')) " +
-            "OR LOWER(o.customerPhone) LIKE LOWER(CONCAT('%',:keyword,'%')))")
+            "OR LOWER(o.customerPhone) LIKE LOWER(CONCAT('%',:keyword,'%'))) " +
+            "ORDER BY o.id DESC")
     Page<Order> searchOrders(@Param("status") Order.OrderStatus status,
                              @Param("keyword") String keyword,
                              Pageable pageable);
