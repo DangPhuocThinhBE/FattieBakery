@@ -220,9 +220,7 @@ public class AdminController {
                                     @RequestParam("status") Order.OrderStatus status,
                                     RedirectAttributes ra) {
         try {
-            Order order = orderService.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-            order.setStatus(status);
-            orderService.save(order); // hoặc hàm save/update tương ứng trong OrderService của bạn
+            orderService.updateOrderStatus(id, status);
             ra.addFlashAttribute("success", "Cập nhật trạng thái đơn hàng thành công!");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Lỗi cập nhật trạng thái: " + e.getMessage());

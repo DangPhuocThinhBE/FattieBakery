@@ -232,12 +232,16 @@
             });
     }
 
+    // ĐOẠN NÀY ĐANG BỊ THIẾU TRONG CODE CỦA BẠN, HÃY THÊM VÀO:
     function changePageSize(select) {
         const newSize = select.value;
         const urlParams = new URLSearchParams(window.location.search);
 
         urlParams.set('size', newSize);
-        urlParams.set('page', '0'); // Reset về trang đầu khi thay đổi kích thước hiển thị
+        urlParams.set('page', '0'); // Reset về trang đầu khi thay đổi kích thước
+
+        // Giữ lại category nếu đang lọc theo danh mục
+        // (URLSearchParams tự động giữ lại các param cũ, ta chỉ update 'size' và 'page')
 
         window.location.href = window.location.pathname + '?' + urlParams.toString();
     }

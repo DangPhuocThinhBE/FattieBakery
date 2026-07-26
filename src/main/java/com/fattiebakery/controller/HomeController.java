@@ -32,8 +32,11 @@ public class HomeController {
     @GetMapping("/shop")
     public String shop(@RequestParam(required = false) Long category,
                        @RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "8") int size, // Nhận thêm tham số size, mặc định là 12
+                       @RequestParam(defaultValue = "8") int size,
                        Model model) {
+        System.out.println("===== SHOP CONTROLLER =====");
+
+        System.out.println("SIZE = " + size);
 
         if (category != null) {
             model.addAttribute("products", productService.getProductsByCategory(category, page, size));
