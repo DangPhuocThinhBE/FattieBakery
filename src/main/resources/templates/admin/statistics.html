@@ -111,8 +111,12 @@
                         <tbody>
                         <tr th:each="row : ${stats.dailyList}">
                             <td class="fw-bold small" th:text="${row[0]}">2026-06-01</td>
-                            <td th:text="${row[1]}">2</td>
-                            <td class="fw-bold text-danger" th:text="${#numbers.formatDecimal(row[2], 0, 'POINT', 0, 'COMMA') + 'đ'}">0đ</td>
+
+                            <!-- Sửa lại: row[2] là số lượng đơn hàng (COUNT) -->
+                            <td th:text="${row[2]}">2</td>
+
+                            <!-- Sửa lại: row[1] là tổng doanh thu (SUM) và format lại tiền tệ -->
+                            <td class="fw-bold text-danger" th:text="${#numbers.formatDecimal(row[1], 0, 'POINT', 0, 'COMMA') + 'đ'}">0đ</td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(stats.dailyList)}">
                             <td colspan="3" class="text-center text-muted py-3 small">Không có doanh thu trong khoảng này.</td>
