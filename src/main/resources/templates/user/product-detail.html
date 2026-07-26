@@ -2,7 +2,6 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{fragments/layout :: main_layout(~{::section}, ${product.name}, ~{::extraStyles})}"><meta charset="UTF-8"/>
-<meta charset="UTF-8"/>
 <head>
     <th:block th:fragment="extraStyles">
         <style>
@@ -167,9 +166,6 @@
                         <div class="info-chip-detail me-2">
                             <i class="fas fa-box-open me-2"></i> Lò bánh còn: <span th:text="${product.stockQuantity}" class="ms-1"></span>
                         </div>
-                        <div class="info-chip-detail me-2" th:if="${product.ageRange}">
-                            <i class="fas fa-birthday-cake me-2"></i> <span th:text="${product.ageRange}" class="ms-1"></span>
-                        </div>
                     </div>
 
                     <p class="text-muted mb-5 small lh-base" style="font-size: 0.95rem;" th:text="${product.description}">Mô tả ngắn về sản phẩm...</p>
@@ -222,7 +218,6 @@
     <script th:inline="javascript">
         let currentQty = 1;
 
-        // Sử dụng cú pháp comment an toàn của Thymeleaf dành riêng cho Javascript Inline
         /*<![CDATA[*/
         const maxStock = /*[[${product.stockQuantity}]]*/ 100;
         /*]]>*/
