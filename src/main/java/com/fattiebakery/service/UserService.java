@@ -95,11 +95,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void changePassword(User user, String newPassword) {
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-    }
-
     public Page<User> searchUsers(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("username").ascending());
         return (keyword != null && !keyword.isBlank()) ? userRepository.searchUsers(keyword, pageable) : userRepository.findAll(pageable);
@@ -128,6 +123,31 @@ public class UserService {
         userRepository.save(user);
     }
 
+    // Thay thế hoặc cập nhật hàm changePassword hiện tại trong UserService.java
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseGet(() -> userRepository.findByEmail(username)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng: " + username)));
+
+        // Kiểm tra mật khẩu cũ có khớp với database không
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Mật khẩu hiện tại không chính xác!");
+        }
+
+        // Mã hóa và lưu mật khẩu mới
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    // --- HÀM HỖ TRỢ LUỒNG QUÊN MẬT KHẨU (RESET PASSWORD) ---
+    public void updatePasswordByEmail(String emailOrUsername, String newPassword) {
+        User user = userRepository.findByEmail(emailOrUsername)
+                .orElseGet(() -> userRepository.findByUsername(emailOrUsername)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với thông tin: " + emailOrUsername)));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
     public long countActiveUsers() { return userRepository.countByActiveTrue(); }
     public long countAllUsers() { return userRepository.count(); }
     public User saveUser(User user) { return userRepository.save(user); }

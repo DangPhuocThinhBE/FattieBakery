@@ -8,72 +8,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
     <style>
-        :root {
-            --logo-red: #8B3238;
-            --logo-red-dark: #6F282D;
-            --border-tan: #EADCC9;
-        }
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: #FFFDF8; /* Nền kem ấm của tiệm bánh */
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
-
-        /* Form vuông vức mộc mạc */
-        .card {
-            border: 1px solid var(--border-tan);
-            border-radius: 0 !important;
-            box-shadow: 0 10px 30px rgba(139, 50, 56, 0.04);
-            background: #ffffff;
-        }
-
-        /* Nút bấm phẳng */
-        .btn-bakery-login {
-            background: var(--logo-red) !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 0 !important;
-            padding: 12px;
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: 0.3s;
-        }
+        :root { --logo-red: #8B3238; --logo-red-dark: #6F282D; --border-tan: #EADCC9; }
+        body { font-family: 'Montserrat', sans-serif; background: #FFFDF8; min-height: 100vh; display: flex; align-items: center; }
+        .card { border: 1px solid var(--border-tan); border-radius: 0 !important; background: #ffffff; box-shadow: 0 10px 30px rgba(139, 50, 56, 0.04); }
+        .btn-bakery-login { background: var(--logo-red) !important; color: white !important; border-radius: 0 !important; padding: 12px; font-weight: 700; text-transform: uppercase; }
         .btn-bakery-login:hover { background: var(--logo-red-dark) !important; }
-
-        /* Ô nhập liệu phẳng */
-        .form-control {
-            border-radius: 0 !important;
-            padding: 12px 15px;
-            border: 1px solid var(--border-tan);
-            font-size: 0.95rem;
-        }
-        .form-control:focus {
-            border-color: var(--logo-red);
-            box-shadow: 0 0 0 .25rem rgba(139, 50, 56, .1);
-        }
-        .input-group-text {
-            border-radius: 0 !important;
-            border: 1px solid var(--border-tan);
-            background: #FAF6F0 !important;
-        }
-
+        .form-control { border-radius: 0 !important; padding: 12px 15px; border: 1px solid var(--border-tan); }
+        .input-group-text { border-radius: 0 !important; border: 1px solid var(--border-tan); background: #FAF6F0 !important; }
         .brand-title { font-family: 'Playfair Display', serif; color: var(--logo-red); font-size: 2.2rem; font-weight: 700; }
-
-        /* Định dạng các nút đăng nhập MXH vuông vức */
-        .btn-social {
-            border-radius: 0 !important;
-            font-weight: 700;
-            padding: 10px;
-            font-size: 0.9rem;
-            text-align: center;
-            display: block;
-            text-decoration: none;
-            transition: 0.2s;
-        }
     </style>
 </head>
 <body>
@@ -81,11 +23,6 @@
     <div class="row justify-content-center">
         <div class="col-md-5">
             <div class="text-center mb-4">
-                <!-- 👑 NHÚNG LOGO CHÚ MÈO FATTIE BAKERY TRỰC TIẾP -->
-                <div class="mb-2">
-                    <img src="data:image/jpeg;base64,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"
-                         alt="Fattie Bakery" style="height: 70px; object-fit: contain;">
-                </div>
                 <div class="brand-title">Fattie Bakery</div>
                 <p class="text-muted small fw-medium mt-1">Chào mừng bạn ghé tiệm bánh thơm!</p>
             </div>
@@ -98,62 +35,40 @@
                 <div th:if="${success}" class="alert alert-success rounded-0 small" th:text="${success}"></div>
 
                 <form action="/login" method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+
+                    <!-- Ô nhập Tên đăng nhập -->
                     <div class="mb-3">
                         <label class="form-label fw-600 small text-dark">Tên đăng nhập</label>
                         <div class="input-group">
-                            <span class="input-group-text border-end-0">
-                                <i class="fas fa-user" style="color:var(--logo-red)"></i>
-                            </span>
-                            <input type="text" class="form-control border-start-0" name="username"
-                                   placeholder="Nhập tên đăng nhập" required/>
+                            <span class="input-group-text border-end-0"><i class="fas fa-user" style="color:var(--logo-red)"></i></span>
+                            <input type="text" class="form-control border-start-0" name="username" placeholder="Nhập tên đăng nhập" required/>
                         </div>
                     </div>
+
+                    <!-- 👉 ĐẶT ĐOẠN MÃ NÀY VÀO ĐÂY (Phần nhập Mật khẩu & Quên mật khẩu) -->
                     <div class="mb-4">
-                        <label class="form-label fw-600 small text-dark">Mật khẩu</label>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-600 small text-dark mb-0">Mật khẩu</label>
+                            <a href="/forgot-password" class="small text-decoration-none" style="color:var(--logo-red);">Quên mật khẩu?</a>
+                        </div>
                         <div class="input-group">
-                            <span class="input-group-text border-end-0">
-                                <i class="fas fa-lock" style="color:var(--logo-red)"></i>
-                            </span>
-                            <input type="password" class="form-control border-start-0" name="password"
-                                   placeholder="Nhập mật khẩu" required/>
+                            <span class="input-group-text border-end-0"><i class="fas fa-lock" style="color:var(--logo-red)"></i></span>
+                            <input type="password" class="form-control border-start-0" name="password" placeholder="Nhập mật khẩu" required/>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-bakery-login w-100">
-                        <i class="fas fa-sign-in-alt me-2"></i>Vào Tiệm Bánh
-                    </button>
+
+                    <!-- Nút bấm Đăng nhập -->
+                    <button type="submit" class="btn btn-bakery-login w-100"><i class="fas fa-sign-in-alt me-2"></i>Vào Tiệm Bánh</button>
                 </form>
 
-                <div class="divider d-flex align-items-center my-4">
-                    <hr class="flex-grow-1" style="border-top: 1px dashed var(--border-tan);">
-                    <span class="mx-3 text-muted fw-bold small" style="font-size: 11px;">HOẶC</span>
-                    <hr class="flex-grow-1" style="border-top: 1px dashed var(--border-tan);">
-                </div>
-
-                <!-- 🛒 ĐÃ CẬP NHẬT THEO ĐÚNG YÊU CẦU: GOOGLE, FACEBOOK & SỐ ĐIỆN THOẠI -->
-                <div class="d-grid gap-2">
-                    <a th:href="@{/oauth2/authorization/google}" class="btn btn-outline-danger btn-social">
-                        <i class="fab fa-google me-2"></i> Tiếp tục với Google
-                    </a>
-                    <a th:href="@{/oauth2/authorization/facebook}" class="btn btn-outline-primary btn-social">
-                        <i class="fab fa-facebook-f me-2"></i> Tiếp tục với Facebook
-                    </a>
-                    <a th:href="@{/login/phone}" class="btn btn-outline-secondary btn-social">
-                        <i class="fas fa-phone-alt me-2"></i> Tiếp tục bằng Số điện thoại
-                    </a>
-                </div>
-
-                <div class="text-center mt-4 pt-2 border-top" style="border-color: #FAF6F0 !important;">
+                <div class="text-center mt-4 pt-2 border-top">
                     <span class="text-muted small">Chưa có tài khoản? </span>
                     <a href="/register" style="color:var(--logo-red); font-weight:700; text-decoration:none;" class="small">Đăng ký ngay</a>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="/static" class="text-muted small text-decoration-none"><i class="fas fa-home me-1"></i>Quay lại trang chủ</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
