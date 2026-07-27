@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/", "/login", "/register", "/shop/**", "/product/**", "/search/**").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/forgot-password", "/reset-password", "/shop/**", "/product/**", "/search/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
