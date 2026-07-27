@@ -76,25 +76,25 @@ public class DiscountApiController {
             return ResponseEntity.ok(response);
         }
 
-// 4. Tính toán số tiền được giảm dựa theo discountType ("PERCENT" hoặc "FIXED" / tùy bạn định nghĩa)
-BigDecimal discountAmount = BigDecimal.ZERO;
-String type = discount.getDiscountType() != null ? discount.getDiscountType().toUpperCase() : "";
+        // 4. Tính toán số tiền được giảm dựa theo discountType ("PERCENT" hoặc "FIXED" / tùy bạn định nghĩa)
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        String type = discount.getDiscountType() != null ? discount.getDiscountType().toUpperCase() : "";
 
-        if (type.contains("PERCENT") || type.contains("%")) {
-// Giảm theo %
-discountAmount = orderAmount.multiply(discount.getDiscountValue())
-        .divide(BigDecimal.valueOf(100));
+            if (type.contains("PERCENT") || type.contains("%")) {
+        // Giảm theo %
+                discountAmount = orderAmount.multiply(discount.getDiscountValue())
+                    .divide(BigDecimal.valueOf(100));
         } else {
-// Giảm số tiền cố định
-discountAmount = discount.getDiscountValue();
+        // Giảm số tiền cố định
+                discountAmount = discount.getDiscountValue();
         }
 
                 // Đảm bảo tiền giảm không vượt quá tổng đơn hàng
-                if (discountAmount.compareTo(orderAmount) > 0) {
-discountAmount = orderAmount;
+            if (discountAmount.compareTo(orderAmount) > 0) {
+                discountAmount = orderAmount;
         }
 
-BigDecimal finalAmount = orderAmount.subtract(discountAmount);
+        BigDecimal finalAmount = orderAmount.subtract(discountAmount);
 
         response.put("success", true);
         response.put("message", "Áp dụng mã giảm giá thành công!");
